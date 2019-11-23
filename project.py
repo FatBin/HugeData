@@ -9,33 +9,27 @@ from pyspark.sql import SQLContext
 from pyspark.sql.functions import isnan, when, count, col
 import pyspark.sql.functions as F
 
-if __name__ == "__main__":
+# test code here
+def test(sc):
+    name = fileNames[5]
+    filePath = directory + "/" + name +".tsv.gz"
+    fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t').load(filePath)
+    outputDicts = {}
+    noEmptyDF = fileDF.select([count(when(isnan(c) | col(c).isNull(), c)).alias(c) for c in fileDF.columns])
+    outputDicts["columns"] = []
+    for c in fileDF.columns:
+        pdict = {
+            "column_name": c
+        }
+        nonEmptyCell = noEmptyDF.select(c).first()[c]
+        pdict["number_non_empty_cells"] = int(nonEmptyCell)
+        outputDicts["columns"].append(pdict)
+    outString = str(outputDicts)
+    print(outString)
 
-    directory = "/user/hm74/NYCOpenData"
-
-    sc = SparkContext()
-    fileNames = sc.textFile(directory+"/datasets.tsv").map(lambda x: x.split('\t')[0]).collect()
-    spark = SparkSession \
-    .builder \
-    .appName("Python Spark SQL Project") \
-    .config("spark.some.config.option", "some-value") \
-    .getOrCreate()
-    #test code
-    # name = fileNames[5]
-    # filePath = directory + "/" + name +".tsv.gz"
-    # fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t').load(filePath)
-    # outputDicts = {}
-    # noEmptyDF = fileDF.select([count(when(isnan(c) | col(c).isNull(), c)).alias(c) for c in fileDF.columns])
-    # outputDicts["columns"] = []
-    # for c in fileDF.columns:
-    #     pdict = {
-    #         "column_name": c
-    #     }
-    #     nonEmptyCell = noEmptyDF.select(c).first()[c]
-    #     pdict["number_non_empty_cells"] = int(nonEmptyCell)
-    #     outputDicts["columns"].append(pdict)
-    # outString = str(outputDicts)
-
+# profile tasks here
+# remeber removing output files from hfs
+def profile(sc):
     finalOut = []
     cnt = 0
     fNum = len(fileNames)
@@ -95,6 +89,20 @@ if __name__ == "__main__":
     outRDD = sc.parallelize(finalOut)
     outRDD.saveAsTextFile("test.out")
 
+if __name__ == "__main__":
+
+    directory = "/user/hm74/NYCOpenData"
+
+    sc = SparkContext()
+    fileNames = sc.textFile(directory+"/datasets.tsv").map(lambda x: x.split('\t')[0]).collect()
+    spark = SparkSession \
+    .builder \
+    .appName("Python Spark SQL Project") \
+    .config("spark.some.config.option", "some-value") \
+    .getOrCreate()
+    profile(sc)
+    #test(sc)
+    
        
         
     # out put format
