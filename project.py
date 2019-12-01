@@ -111,28 +111,60 @@ def cosSim(str1, str2):
     edit_distance_similarity=1 - edit_distance / max(len(str1), len(str2))
     return edit_distance_similarity
 
+#zip code
+zipPat = r'^[0-9]{5}(?:-[0-9]{4})?$'
+#phone number 
+phonePatList = [r'^[2-9]\d{2}-\d{3}-\d{4}$', r'((\(\d{3}\) ?)|(\d{3}-))?\d{3}-\d{4}'\
+    r'^(1?(-?\d{3})-?)?(\d{3})(-?\d{4})$']
+#website
+webSitePat = r'^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$'
+#brouugh
+boroughList = ['brooklyn', 'manhattan', 'queens', 'the bronx', 'staten island']
+#car make
+carMakeList = ['acura', 'alfa romeo', 'aston martin', 'audi', 'bentley', 'bmw', 'bugatti', 'buick', 'cadillac', 'chevrolet', \
+    'chrysler', 'citroen', 'dodge', 'ferrari', 'fiat', 'ford', 'geely', 'general motors', 'gmc', 'honda', 'hyundai', \
+        'infiniti', 'jaguar', 'jeep', 'kia', 'koenigsegg', 'lamborghini', 'land rover', 'lexus', 'masrati', \
+            'mazda', 'mclaren', 'mercedes benz', 'mercedes-benz', 'mini', 'mitsubishi', 'nissan', 'pagani', 'peugeot', 'porsche', \
+                'ram', 'renault', 'rolls royce', 'saab', 'subaru', 'suzuki', 'tata motors', 'tesla', \
+                    'toyota', 'volkswagen', 'volvo']
+#color 
+colorList = ['white', 'yellow', 'blue', 'red', 'green', 'black', 'brown', 'azure', 'ivory', 'teal', \
+    'silver', 'purple', 'navy blue', 'pea green', 'gray', 'orange', 'maroon', 'charcoal', 'aquamarine', 'coral', 'aquamarine', 'coral', \
+        'fuchsia', 'wheat', 'lime', 'crimson', 'khaki', 'hot pink', 'megenta', 'olden', 'plum', 'olive', 'cyan']
+#business name
+businessNamePat = r"^((?![\^!@#$*~ <>?]).)((?![\^!@#$*~<>?]).){0,73}((?![\^!@#$*~ <>?]).)$"
+#person name
+personNamePat = r"^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$"
+#vehicle type
+vehicleTypeList = ['ambulance', 'boat', 'trailer', 'motorcycle', 'bus', 'taxi', 'van']
+#parks/playgrounds
+ppPat = r"([a-zA-Z0-9]{1,10} ){1,5}(park|playground)$"
+#street name
+streetPat = r"([a-zA-Z0-9]{1,10} ){1,5}(avenue|ave|court|ct|street|st|drive|dr|lane|ln|road|rd|blvd|plaza|parkway|pkwy)$"
+#type of location
+typeLocationList = ['abandoned building', 'airport terminal', 'airport', 'bank', 'church', 'clothing', 'boutique']
+#lat/lon coordinates
+latLonCoordPat = r"^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$"
+#address
+addressPat = r"^\d+?[A-Za-z]*\s\w*\s?\w+?\s\w{2}\w*\s*\w*$"
+
 def semanticMap(x):
     mat = str(x[0])
     lowerMat = mat.lower()
-    # zip code
-    zipPat = r'^[0-9]{5}(?:-[0-9]{4})?$'
-    if re.match(zipPat, mat):
-        return ('Zip code', x[1])
-
-    #phone number 
-    phonePatList = [r'^[2-9]\d{2}-\d{3}-\d{4}$', r'((\(\d{3}\) ?)|(\d{3}-))?\d{3}-\d{4}'\
-        r'^(1?(-?\d{3})-?)?(\d{3})(-?\d{4})$']
-    for pat in phonePatList:
-        if re.match(pat, mat):
-            return ('Phone Number', x[1])
-    
-    #website
-    webSitePat = r'^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$'
-    if re.match(webSitePat, lowerMat):
-        return ('Websites', x[1])
+    #type of location
+    if lowerMat in typeLocationList:
+        return ('Type of location', x[1])
+    #vehicle type
+    if lowerMat in vehicleTypeList:
+        return ('Vehicle Type', x[1])
+    #color 
+    if lowerMat in colorList:
+        return ('Color', x[1])
+    # for color in colorList:
+    #     if cosSim(color, lowerMat ) >= 0.8:
+    #         return ('Color', x[1])
 
     #brouugh
-    boroughList = ['brooklyn', 'manhattan', 'queens', 'the bronx', 'staten island']
     if  lowerMat in boroughList:
         return ('Borough', x[1])
     # for borough in boroughList:
@@ -140,12 +172,6 @@ def semanticMap(x):
     #         return ('Borough', x[1])
 
     #car make
-    carMakeList = ['acura', 'alfa romeo', 'aston martin', 'audi', 'bentley', 'bmw', 'bugatti', 'buick', 'cadillac', 'chevrolet', \
-        'chrysler', 'citroen', 'dodge', 'ferrari', 'fiat', 'ford', 'geely', 'general motors', 'gmc', 'honda', 'hyundai', \
-            'infiniti', 'jaguar', 'jeep', 'kia', 'koenigsegg', 'lamborghini', 'land rover', 'lexus', 'masrati', \
-                'mazda', 'mclaren', 'mercedes benz', 'mini', 'mitsubishi', 'nissan', 'pagani', 'peugeot', 'porsche', \
-                    'ram', 'renault', 'rolls royce', 'saab', 'subaru', 'suzuki', 'tata motors', 'tesla', \
-                        'toyota', 'volkswagen', 'volvo']
     if lowerMat in carMakeList:
         return ('Car make', x[1])
     # for carMake in carMakeList:
@@ -153,17 +179,35 @@ def semanticMap(x):
     #     if difflib.SequenceMatcher(None, carMake, lowerMat).ratio() >= 0.8:
     #         return ('Car make', x[1])
 
-    #color 
-    colorList = ['white', 'yellow', 'blue', 'red', 'green', 'black', 'brown', 'azure', 'ivory', 'teal', \
-        'silver', 'purple', 'navy blue', 'pea green', 'gray', 'orange', 'maroon', 'charcoal', 'aquamarine', 'coral', 'aquamarine', 'coral', \
-            'fuchsia', 'wheat', 'lime', 'crimson', 'khaki', 'hot pink', 'megenta', 'olden', 'plum', 'olive', 'cyan']
-    if lowerMat in colorList:
-        return ('Color', x[1])
-    # for color in colorList:
-    #     if cosSim(color, lowerMat ) >= 0.8:
-    #         return ('Color', x[1])
-
-   
+    #parks/playgrounds
+    if re.match(ppPat, mat):
+        return ('Parks/Playgrounds', x[1])
+    #zip code
+    if re.match(zipPat, mat):
+        return ('Zip code', x[1])
+    #phone number 
+    for pat in phonePatList:
+        if re.match(pat, mat):
+            return ('Phone Number', x[1])    
+    #website
+    if re.match(webSitePat, lowerMat):
+        return ('Websites', x[1])
+    #street name
+    if re.match(streetPat, lowerMat):
+        return ('Street name', x[1])
+    #lat/lon coordinates
+    if re.match(latLonCoordPat, lowerMat):
+        return ('Address', x[1])
+    #address
+    if re.match(addressPat, lowerMat):
+        return ('Address', x[1])
+    #business name
+    # if re.match(businessNamePat, mat):
+    #     return ('Business name', x[1])
+    #person name
+    if re.match(personNamePat, mat):
+        return ('Person name', x[1])
+    
     return ('Other', x[1])
 
 # test code here
@@ -276,8 +320,14 @@ def profile(sc):
                     'count': sem[1]
                 })
             print(pdict['semantic_types'])
-
-            # #5
+            #add to out dicts
+            outputDicts["columns"].append(pdict)
+        outString = str(json.dumps(outputDicts,indent=1))
+        datasetList.append(outString)
+        #print(datasetList)
+        outRDD = sc.parallelize(datasetList)
+        outRDD.saveAsTextFile(name + ".jsonOut")
+            # #task 1.5
             # print('#5 data types')
             # data_types_List = []
             # if Integer_Real_Date_info['int_count_' + c] != 0:
@@ -317,13 +367,7 @@ def profile(sc):
             #     data_types_List.append(text_data_type)
             # pdict['data_types'] = data_types_List
             # print('#5 finished')
-
-            
-            outputDicts["columns"].append(pdict)
-        outString = str(outputDicts)
-        datasetList.append(outString)
-        outRDD = sc.parallelize(datasetList)
-        #outRDD.saveAsTextFile(name + ".jsonOut")
+        
 
 if __name__ == "__main__":
 
