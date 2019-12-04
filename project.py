@@ -85,7 +85,7 @@ addressPat = r"^\d+?[A-Za-z]*\s\w*\s?\w+?\s\w{2}\w*\s*\w*$"
 #neighborhood
 
 #school level
-schoollevel_list = ['elementary', 'k-8', 'k-3', 'k-2', 'high school', 'middle', 'high school transfer', 'YABC']
+schoollevel_list = ['elementary', 'k-8', 'k-3', 'k-2', 'high school', 'middle', 'high school transfer', 'yabc']
 
 def semanticMap(x):
     mat = str(x[0])
@@ -256,6 +256,7 @@ def profile(sc):
         #print(datasetList)
         outRDD = sc.parallelize(datasetList)
         outRDD.saveAsTextFile(name + ".jsonOut")
+        print('Finished output file: {}, the index is: {}'.format(name, cnt-1))
 
 if __name__ == "__main__":
 
