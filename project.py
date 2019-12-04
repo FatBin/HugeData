@@ -85,7 +85,9 @@ addressPat = r"^\d+?[A-Za-z]*\s\w*\s?\w+?\s\w{2}\w*\s*\w*$"
 #neighborhood
 
 #school level
-schoollevel_list = ['elementary', 'k-8', 'k-3', 'k-2', 'high school', 'middle', 'high school transfer', 'yabc']
+schoollevel_list = ['k-1', 'k-2', 'k-3', 'k-4','k-5','k-6','k-7','k-8','k-9','k-10','k-11','k-12'\
+    'elementary', 'elementary school', 'primary', 'primary school', 'high school', 'middle', 'middle school', 'high school transfer', 'yabc', \
+        'senior high school', 'college']
 
 def semanticMap(x):
     mat = str(x[0])
