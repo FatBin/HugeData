@@ -16,72 +16,6 @@ import datetime
 from dateutil.parser import parse
 import difflib
 
-@udf("string")
-def str_type(string):
-    if string is None:
-        return None
-    try:
-        long(string)
-        if '.' not in str(string):
-            return 'INTEGER (LONG)'
-    except:
-        string
-    try:
-        float(string)
-        return 'REAL'
-    except:
-        string
-    try:
-        for fmt in ["%Y-%m-%d", "%d-%m-%Y", "%Y/%m/%d", "%m/%d/%Y", "%Y%m%d", "%m%d%Y"]:
-            try:
-                datetime.datetime.strptime(string, fmt).date()
-                return 'DATE/TIME'
-            except:
-                continue
-    except:
-        string
-    return 'TEXT'
-
-
-
-@udf("int")
-def transfer_to_int(data):
-    try:
-        result = long(data)
-        return result
-    except:
-        return None
-
-
-@udf("double")
-def transfer_to_double(data):
-    try:
-        result = float(data)
-        return result
-    except:
-        return None
-
-@udf("string")
-def uniform_date_format(data):
-    try:
-        for fmt in ["%Y-%m-%d", "%d-%m-%Y", "%Y/%m/%d", "%m/%d/%Y", "%Y%m%d", "%m%d%Y"]:
-            try:
-                datetime.datetime.strptime(data, fmt).date()
-                return 'DATE/TIME'
-            except:
-                continue
-    except:
-        return None
-    return None
-
-@udf("int")
-def count_text_length(data):
-    try:
-        result = long(len(data))
-        return result
-    except:
-        return None
-
 def editDis(str1, str2):
     len_str1 = len(str1) + 1
     len_str2 = len(str2) + 1
@@ -254,21 +188,7 @@ def profile(sc):
         #4 most frequent top 5
 
         #5
-        # print('#5')
-        # new_fileDF = fileDF.select([str_type(col).alias(col + 'Type') for col in fileDF.columns] + fileDF.columns)
-        # Integer_Real_Date_info = new_fileDF.select([F.count(transfer_to_int(F.when(new_fileDF[c+'Type'] == 'INTEGER (LONG)', new_fileDF[c]))).alias('int_count_' + c) for c in fileDF.columns] \
-        #               + [F.max(transfer_to_int(F.when(new_fileDF[c+'Type'] == 'INTEGER (LONG)', new_fileDF[c]))).alias('int_max_' + c) for c in fileDF.columns] \
-        #               + [F.min(transfer_to_int(F.when(new_fileDF[c+'Type'] == 'INTEGER (LONG)', new_fileDF[c]))).alias('int_min_' + c) for c in fileDF.columns] \
-        #               + [F.mean(transfer_to_int(F.when(new_fileDF[c+'Type'] == 'INTEGER (LONG)', new_fileDF[c]))).alias('int_mean_' + c) for c in fileDF.columns] \
-        #               + [F.stddev(transfer_to_int(F.when(new_fileDF[c+'Type'] == 'INTEGER (LONG)', new_fileDF[c]))).alias('int_stddev_' + c) for c in fileDF.columns]\
-        #           + [F.count(transfer_to_double(F.when(new_fileDF[c+'Type'] == 'REAL', new_fileDF[c]))).alias('double_count_' + c) for c in fileDF.columns]\
-        #               + [F.max(transfer_to_double(F.when(new_fileDF[c+'Type'] == 'REAL', new_fileDF[c]))).alias('double_max_' + c) for c in fileDF.columns]\
-        #               + [F.min(transfer_to_double(F.when(new_fileDF[c+'Type'] == 'REAL', new_fileDF[c]))).alias('double_min_' + c) for c in fileDF.columns]\
-        #               + [F.mean(transfer_to_double(F.when(new_fileDF[c+'Type'] == 'REAL', new_fileDF[c]))).alias('double_mean_' + c) for c in fileDF.columns]\
-        #               + [F.stddev(transfer_to_double(F.when(new_fileDF[c+'Type'] == 'REAL', new_fileDF[c]))).alias('double_stddev_' + c) for c in fileDF.columns]\
-        #           + [F.count(uniform_date_format(F.when(new_fileDF[c+'Type'] == 'DATE/TIME', new_fileDF[c]))).alias('date_count_' + c) for c in fileDF.columns]\
-        #             + [F.max(uniform_date_format(F.when(new_fileDF[c+'Type'] == 'DATE/TIME', new_fileDF[c]))).alias('date_max_' + c) for c in fileDF.columns]\
-        #             + [F.min(uniform_date_format(F.when(new_fileDF[c+'Type'] == 'DATE/TIME', new_fileDF[c]))).alias('date_min_' + c) for c in fileDF.columns]).first()
+
         # ## add to output json
         outputDicts["columns"] = []
         colCnt = 0
@@ -327,47 +247,6 @@ def profile(sc):
         #print(datasetList)
         outRDD = sc.parallelize(datasetList)
         outRDD.saveAsTextFile(name + ".jsonOut")
-            # #task 1.5
-            # print('#5 data types')
-            # data_types_List = []
-            # if Integer_Real_Date_info['int_count_' + c] != 0:
-            #     int_data_type = {}
-            #     int_data_type['type'] = 'INTEGER (LONG)'
-            #     int_data_type['count'] = Integer_Real_Date_info['int_count_'+ c]
-            #     int_data_type['max_value'] = Integer_Real_Date_info['int_max_'+ c]
-            #     int_data_type['mean_value'] = Integer_Real_Date_info['int_mean_'+ c]
-            #     int_data_type['stddev_value'] = Integer_Real_Date_info['int_stddev_' + c]
-            #     data_types_List.append(int_data_type)
-            # if Integer_Real_Date_info['double_count_' + c] != 0:
-            #     double_data_type = {}
-            #     double_data_type['type'] = 'REAL'
-            #     double_data_type['count'] = Integer_Real_Date_info['double_count_'+ c]
-            #     double_data_type['max_value'] = Integer_Real_Date_info['double_max_'+ c]
-            #     double_data_type['mean_value'] = Integer_Real_Date_info['double_mean_'+ c]
-            #     double_data_type['stddev_value'] = Integer_Real_Date_info['double_stddev_' + c]
-            #     data_types_List.append(double_data_type)
-            # if Integer_Real_Date_info['date_count_' + c] != 0:
-            #     date_data_type = {}
-            #     date_data_type['type'] = 'DATE/TIME'
-            #     date_data_type['count'] = Integer_Real_Date_info['date_count_'+ c]
-            #     date_data_type['max_value'] = Integer_Real_Date_info['date_max_' + c]
-            #     date_data_type['min_value'] = Integer_Real_Date_info['date_min_' + c]
-            #     data_types_List.append(date_data_type)
-            # if  new_fileDF.filter(new_fileDF[c + 'Type'] == 'TEXT').count() != 0:
-            #     shortest_values = new_fileDF.sort(count_text_length(c).asc()).select(c).limit(5).collect()
-            #     shortest_values = [shortest_values[i][0] for i in range(0,5)]
-            #     longest_values = new_fileDF.sort(count_text_length(c).desc()).select(c).limit(5).collect()
-            #     longest_values = [longest_values[i][0] for i in range(0,5)]
-            #     average_length = new_fileDF.select(F.mean(count_text_length(c))).first()[0]
-            #     text_data_type = {}
-            #     text_data_type['type'] = 'TEXT'
-            #     text_data_type['shortest_values'] = shortest_values
-            #     text_data_type['longest_values'] = longest_values
-            #     text_data_type['average_length'] = average_length
-            #     data_types_List.append(text_data_type)
-            # pdict['data_types'] = data_types_List
-            # print('#5 finished')
-        
 
 if __name__ == "__main__":
 
