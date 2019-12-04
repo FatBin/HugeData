@@ -68,7 +68,8 @@ colorList = ['white', 'yellow', 'blue', 'red', 'green', 'black', 'brown', 'azure
 #business name
 businessNamePat = r"^((?![\^!@#$*~ <>?]).)((?![\^!@#$*~<>?]).){0,73}((?![\^!@#$*~ <>?]).)$"
 #person name
-personNamePat = r"^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$"
+personNamePat = r"^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$" 
+# What if only have first name or last name? The A-Z is not required since all are lower()
 #vehicle type
 vehicleTypeList = ['ambulance', 'boat', 'trailer', 'motorcycle', 'bus', 'taxi', 'van']
 #parks/playgrounds
@@ -81,6 +82,10 @@ typeLocationList = ['abandoned building', 'airport terminal', 'airport', 'bank',
 latLonCoordPat = r"^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$"
 #address
 addressPat = r"^\d+?[A-Za-z]*\s\w*\s?\w+?\s\w{2}\w*\s*\w*$"
+#neighborhood
+
+#school level
+schoollevel_list = ['elementary', 'k-8', 'k-3', 'k-2', 'high school', 'middle', 'high school transfer', 'YABC']
 
 def semanticMap(x):
     mat = str(x[0])
@@ -98,7 +103,7 @@ def semanticMap(x):
     #     if cosSim(color, lowerMat ) >= 0.8:
     #         return ('Color', x[1])
 
-    #brouugh
+    #borough
     if  lowerMat in boroughList:
         return ('Borough', x[1])
     # for borough in boroughList:
@@ -112,6 +117,10 @@ def semanticMap(x):
     #     # python effiecent lib for sim
     #     if difflib.SequenceMatcher(None, carMake, lowerMat).ratio() >= 0.8:
     #         return ('Car make', x[1])
+
+    #school level
+    if lowerMat in schoollevel_list:
+        return ('School Level', x[1])
 
     #parks/playgrounds
     if re.match(ppPat, mat):
