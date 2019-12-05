@@ -165,7 +165,7 @@ if __name__ == "__main__":
     .getOrCreate()
     
     fNum = len(fileLst)
-    for i in range(69, len(fileLst)):
+    for i in range(0, len(fileLst)):
         fileInfo = fileLst[i]
         fStr = fileInfo.split(".")
         fileName = fStr[0]
