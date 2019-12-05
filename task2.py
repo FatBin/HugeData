@@ -8,6 +8,8 @@ from pyspark import SparkContext
 from pyspark.sql import SparkSession
 from pyspark.sql import SQLContext
 
+rowsNum = 0
+
 def editDis(str1, str2):
     len_str1 = len(str1) + 1
     len_str2 = len(str2) + 1
@@ -45,7 +47,7 @@ phonePatList = [r'^[2-9]\d{2}-\d{3}-\d{4}$', r'((\(\d{3}\) ?)|(\d{3}-))?\d{3}-\d
 #website
 webSitePat = r'^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$'
 #brouugh
-boroughList = ['brooklyn', 'manhattan', 'queens', 'the bronx', 'staten island']
+boroughList = ['brooklyn', 'manhattan', 'queens', 'bronx', 'the bronx', 'staten island']
 #car make
 carMakeList = ['acura', 'alfa romeo', 'aston martin', 'audi', 'bentley', 'bmw', 'bugatti', 'buick', 'cadillac', 'chevrolet', \
     'chrysler', 'citroen', 'dodge', 'ferrari', 'fiat', 'ford', 'geely', 'general motors', 'gmc', 'honda', 'hyundai', \
@@ -60,7 +62,7 @@ colorList = ['white', 'yellow', 'blue', 'red', 'green', 'black', 'brown', 'azure
 #business name
 businessNamePat = r"^((?![\^!@#$*~ <>?]).)((?![\^!@#$*~<>?]).){0,73}((?![\^!@#$*~ <>?]).)$"
 #person name
-personNamePat = r"^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$" 
+personNamePat = r"^[a-z ,.'-]+$" 
 # What if only have first name or last name? The A-Z is not required since all are lower()
 #vehicle type
 vehicleTypeList = ['ambulance', 'boat', 'trailer', 'motorcycle', 'bus', 'taxi', 'van']
@@ -72,6 +74,7 @@ streetPat = r"([a-zA-Z0-9]{1,10} ){1,5}(avenue|ave|court|ct|street|st|drive|dr|l
 typeLocationList = ['abandoned building', 'airport terminal', 'airport', 'bank', 'church', 'clothing', 'boutique']
 #lat/lon coordinates
 latLonCoordPat = r"^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$"
+latLonCoordPat2 = r"^(([1-9]\d?)|(1[0-7]\d))(\.\d{3,7})|180|0(\.\d{1,6})?"
 #address
 addressPat = r"^\d+?[A-Za-z]*\s\w*\s?\w+?\s\w{2}\w*\s*\w*$"
 #neighborhood
@@ -84,69 +87,65 @@ schoollevel_list = ['k-1', 'k-2', 'k-3', 'k-4','k-5','k-6','k-7','k-8','k-9','k-
 def semanticMap(x):
     mat = str(x[0])
     lowerMat = mat.lower()
+    #address
+    if re.match(addressPat, lowerMat):
+        return ('address', x[1]) 
     #type of location
     if lowerMat in typeLocationList:
         return ('location_type', x[1])
     #vehicle type
     if lowerMat in vehicleTypeList:
         return ('vehicle_type', x[1])
+    #school level
+    if lowerMat in schoollevel_list:
+        return ('school_level', x[1])
+    #zip code
+    if re.match(zipPat, mat):
+        return ('zip_code', x[1])
+    #website
+    if re.match(webSitePat, lowerMat):
+        return ('websites', x[1])
+    latlonMat = lowerMat.replace(")","").replace("(","").replace(" ","")
+    #lat/lon coordinates
+    if re.match(latLonCoordPat, latlonMat):
+        return ('lat_lon_cord', x[1])
+    llMat = lowerMat.replace("+","").replace("-","")
+    if re.match(latLonCoordPat2, llMat):
+        return ('lat_lon_cord', x[1])
+    #parks/playgrounds
+    if re.match(ppPat, mat):
+        return ('park_playground', x[1])   
+    #street name
+    if re.match(streetPat, lowerMat):
+        return ('street_name', x[1])
+    #phone number 
+    for pat in phonePatList:
+        if re.match(pat, mat):
+            return ('phone_number', x[1])    
     #color 
     # if lowerMat in colorList:
     #     return ('Color', x[1])
     for color in colorList:
         if cosSim(color, lowerMat ) >= 0.8:
             return ('color', x[1])
-
     #borough
     # if  lowerMat in boroughList:
     #     return ('Borough', x[1])
     for borough in boroughList:
         if cosSim(borough, lowerMat) >= 0.8:
             return ('borough', x[1])
-
     #car make
     # if lowerMat in carMakeList:
     #     return ('Car make', x[1])
     for carMake in carMakeList:
         if cosSim(carMake, lowerMat) >= 0.8:
             return ('car_make', x[1])
-        # python effiecent lib for sim
-        # if difflib.SequenceMatcher(None, carMake, lowerMat).ratio() >= 0.8:
-        #     return ('car_make', x[1])
-
-    #school level
-    if lowerMat in schoollevel_list:
-        return ('school_level', x[1])
-
-    #parks/playgrounds
-    if re.match(ppPat, mat):
-        return ('park_playground', x[1])
-    #zip code
-    if re.match(zipPat, mat):
-        return ('zip_code', x[1])
-    #phone number 
-    for pat in phonePatList:
-        if re.match(pat, mat):
-            return ('phone_number', x[1])    
-    #website
-    if re.match(webSitePat, lowerMat):
-        return ('websites', x[1])
-    #street name
-    if re.match(streetPat, lowerMat):
-        return ('street_name', x[1])
-    #lat/lon coordinates
-    if re.match(latLonCoordPat, lowerMat):
-        return ('lat_lon_cord', x[1])
-    #address
-    if re.match(addressPat, lowerMat):
-        return ('address', x[1])
     #business name
     # if re.match(businessNamePat, mat):
     #     return ('Business name', x[1])
     #person name
     if re.match(personNamePat, mat):
         return ('person_name', x[1])
-    
     return ('other', x[1])
 
 if __name__ == "__main__":
@@ -165,15 +164,13 @@ if __name__ == "__main__":
     .getOrCreate()
     
     fNum = len(fileLst)
-    cnt = 0
     for i in range(0, len(fileLst)):
         fileInfo = fileLst[i]
-        cnt += 1
         fStr = fileInfo.split(".")
         fileName = fStr[0]
         colName = fStr[1]
         print('Processing file: {} with column: {}, current step: {}/{}'.format( \
-            fileName, colName, cnt, fNum))
+            fileName, colName, i+1, fNum))
         outputDicts = {}
         outputDicts['column_name'] = colName
         outputDicts['semantic_types'] = []
@@ -186,6 +183,7 @@ if __name__ == "__main__":
         disRDD = fileDF.select(colName).rdd
         rddCol = disRDD.map(lambda x: (x[colName], 1))
         disRDD = rddCol.reduceByKey(lambda x,y:(x+y))
+        rowsNum = len(disRDD.collect())
         sRDD = disRDD.map(lambda x: semanticMap(x))
         SemRDD = sRDD.reduceByKey(lambda x,y:(x+y))
         SemList = SemRDD.collect()
@@ -197,4 +195,4 @@ if __name__ == "__main__":
             })
         with open(outDir+"/"+fileName+"_semantic.json", 'w') as fw:
             json.dump(outputDicts,fw)
-        print('Finished output file: {}, the index is: {}'.format(fileName, cnt-1))
+        print('Finished output file: {}, the index is: {}'.format(fileName, i))
