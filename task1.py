@@ -163,11 +163,10 @@ if __name__ == "__main__":
             print('#4 frequent_values')
             topRDD = disRDD.sortBy(lambda x: -x[1]).take(5)
             topList = []
-            for index in range(5):
+            for index in range(len(topRDD)):
                 topList.append(topRDD[index][0])
             pdict["frequent_values"] = topList
             print('#4 finished')
-
             #5
             print('#5 data types')
             data_types_List = []
