@@ -99,7 +99,6 @@ if __name__ == "__main__":
     fNum = len(fileNames)
     cnt = 0
     for name in fileNames:
-        datasetList = []
         outputDicts = {}
         cnt += 1
         print('{}/{}'.format(cnt, fNum))
@@ -156,8 +155,8 @@ if __name__ == "__main__":
             rddCol = disRDD.map(lambda x: (x[c], 1))
             disRDD = rddCol.reduceByKey(lambda x,y:(x+y))
             disCol = disRDD.collect()
-            emptyCells = len(disCol)
-            pdict["number_distinct_values"] = emptyCells
+            disCell = len(disCol)
+            pdict["number_distinct_values"] = disCell
             print('#3 finished')
             #4
             print('#4 frequent_values')
