@@ -97,22 +97,19 @@ if __name__ == "__main__":
     .getOrCreate()
     
     fNum = len(fileNames)
-    cnt = 0
     for i in range(0, len(fileNames)):
         name = fileNames[i]
         outputDicts = {}
-        cnt += 1
-        print('{}/{}'.format(cnt, fNum))
+        print('{}/{}'.format(i+1, fNum))
         outputDicts["dataset_name"] = name
         filePath = directory + "/" + name +".tsv.gz"
         fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t').load(filePath)
-        
+        print('*'*50)
         print('creating dataframe for ' + name)
         #1 non empty cell
-        noEmptyDF = fileDF.select([count(when(~isnan(c) & ~col(c).isNull(), c)).alias(c) for c in fileDF.columns])
-        #2 empty cell
-        print('*'*20)
-        emptyDF = fileDF.select([count(when(isnan(c) | col(c).isNull(), c)).alias(c) for c in fileDF.columns])
+        noEmptyDF = fileDF.select([count(when( (col(c) != 'no data') & (~col(c).isNull()), c)).alias(c) for c in fileDF.columns])
+        #2 empty cell     
+        emptyDF = fileDF.select([count(when( (col(c) == 'no data') | (col(c).isNull()), c)).alias(c) for c in fileDF.columns])
         #5
         print('#5 prepare data type info')
         new_fileDF = fileDF.select([str_type(col).alias(col + 'Type') for col in fileDF.columns] + fileDF.columns)
@@ -136,7 +133,7 @@ if __name__ == "__main__":
         print('finished creating dataframe')
         for c in fileDF.columns:
             colCnt += 1
-            print('{}/{} col: {}/{}'.format(cnt, fNum, colCnt, colNum))
+            print('{}/{} col: {}/{}'.format(i+1, fNum, colCnt, colNum))
             pdict = {
                 "column_name": c
             }
@@ -212,4 +209,4 @@ if __name__ == "__main__":
         outString = str(json.dumps(outputDicts,indent=1))
         with open(outDir+"/"+name+"_generic.json", 'w') as fw:
             json.dump(outputDicts,fw)
-        print('Finished output file: {}, the index is: {}'.format(name, cnt-1))
+        print('Finished output file: {}, the index is: {}'.format(name, i))

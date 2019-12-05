@@ -87,9 +87,6 @@ schoollevel_list = ['k-1', 'k-2', 'k-3', 'k-4','k-5','k-6','k-7','k-8','k-9','k-
 def semanticMap(x):
     mat = str(x[0])
     lowerMat = mat.lower()
-    #address
-    if re.match(addressPat, lowerMat):
-        return ('address', x[1]) 
     #type of location
     if lowerMat in typeLocationList:
         return ('location_type', x[1])
@@ -114,7 +111,10 @@ def semanticMap(x):
         return ('lat_lon_cord', x[1])
     #parks/playgrounds
     if re.match(ppPat, mat):
-        return ('park_playground', x[1])   
+        return ('park_playground', x[1])  
+    #address
+    if re.match(addressPat, lowerMat):
+        return ('address', x[1])  
     #street name
     if re.match(streetPat, lowerMat):
         return ('street_name', x[1])
