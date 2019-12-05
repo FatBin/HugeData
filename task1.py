@@ -98,7 +98,8 @@ if __name__ == "__main__":
     
     fNum = len(fileNames)
     cnt = 0
-    for name in fileNames:
+    for i in range(0, len(fileNames)):
+        name = fileNames[i]
         outputDicts = {}
         cnt += 1
         print('{}/{}'.format(cnt, fNum))
@@ -108,10 +109,10 @@ if __name__ == "__main__":
         
         print('creating dataframe for ' + name)
         #1 non empty cell
-        noEmptyDF = fileDF.select([count(when(isnan(c) | col(c).isNull(), c)).alias(c) for c in fileDF.columns])
+        noEmptyDF = fileDF.select([count(when(~isnan(c) & ~col(c).isNull(), c)).alias(c) for c in fileDF.columns])
         #2 empty cell
         print('*'*20)
-        emptyDF = fileDF.select([count(when(~isnan(c) & ~col(c).isNull(), c)).alias(c) for c in fileDF.columns])
+        emptyDF = fileDF.select([count(when(isnan(c) | col(c).isNull(), c)).alias(c) for c in fileDF.columns])
         #5
         print('#5 prepare data type info')
         new_fileDF = fileDF.select([str_type(col).alias(col + 'Type') for col in fileDF.columns] + fileDF.columns)

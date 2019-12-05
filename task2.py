@@ -166,7 +166,8 @@ if __name__ == "__main__":
     
     fNum = len(fileLst)
     cnt = 0
-    for fileInfo in fileLst:
+    for i in range(0, len(fileLst)):
+        fileInfo = fileLst[i]
         cnt += 1
         fStr = fileInfo.split(".")
         fileName = fStr[0]
