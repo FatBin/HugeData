@@ -87,6 +87,7 @@ schoollevel_list = ['k-1', 'k-2', 'k-3', 'k-4','k-5','k-6','k-7','k-8','k-9','k-
 def semanticMap(x):
     mat = str(x[0])
     lowerMat = mat.lower()
+    
     #type of location
     if lowerMat in typeLocationList:
         return ('location_type', x[1])
@@ -164,11 +165,12 @@ if __name__ == "__main__":
     .getOrCreate()
     
     fNum = len(fileLst)
-    for i in range(0, len(fileLst)):
+    for i in range(69, len(fileLst)):
         fileInfo = fileLst[i]
         fStr = fileInfo.split(".")
         fileName = fStr[0]
         colName = fStr[1]
+        print('*'*50)
         print('Processing file: {} with column: {}, current step: {}/{}'.format( \
             fileName, colName, i+1, fNum))
         outputDicts = {}
@@ -178,9 +180,26 @@ if __name__ == "__main__":
         fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t').load(filePath)
         columns = fileDF.columns
         if colName not in columns:
-            colName = colName.replace("_", " ") 
-        print('Finished selecting column from dataframe: {}'.format(fileName))
+            if colName.find('CORE SUBJECT'):
+                colName = 'CORE SUBJECT'
+            else:
+                colName = colName.replace("_", " ") 
+            print('Renamed selected column name')
+        if colName not in columns:
+            if colName == 'CORE SUBJECT':
+                for c in columns:
+                    if c.find(colName):
+                        colName = c
+                        print('Renamed selected column name')
+                        break
+            else:
+                for c in columns:
+                    if cosSim(colName, c) >=0.8:
+                        colName = c
+                        print('Renamed selected column name')
+                        break
         disRDD = fileDF.select(colName).rdd
+        print('Finished selecting column from dataframe: {}'.format(fileName))
         rddCol = disRDD.map(lambda x: (x[colName], 1))
         disRDD = rddCol.reduceByKey(lambda x,y:(x+y))
         rowsNum = len(disRDD.collect())
