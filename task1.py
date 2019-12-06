@@ -97,7 +97,7 @@ if __name__ == "__main__":
     .getOrCreate()
     
     fNum = len(fileNames)
-    for i in range(37, len(fileNames)):
+    for i in range(182, len(fileNames)):
         name = fileNames[i]
         outputDicts = {}
         print('{}/{}'.format(i+1, fNum))
@@ -106,11 +106,13 @@ if __name__ == "__main__":
         fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t').load(filePath)
         print('*'*50)
         print('creating dataframe for ' + name)
-        emptyWordsList = ['no data', 'N/A']
+        emptyWordsList = ["no data", "N/A"]
         #1 non empty cell
-        noEmptyDF = fileDF.select([count(when( (~col("`"+c+"`").isin(emptyWordsList)) & (~col("`"+c+"`").isNull()), c)).alias(c) for c in fileDF.columns])
+        # (~col("`"+c+"`").isin(emptyWordsList)) & 
+        noEmptyDF = fileDF.select([count(when(~col("`"+c+"`").isNull(), c)).alias(c) for c in fileDF.columns])
         #2 empty cell     
-        emptyDF = fileDF.select([count(when( (col("`"+c+"`").isin(emptyWordsList)) | (col("`"+c+"`").isNull()), c)).alias(c) for c in fileDF.columns])
+        #(col("`"+c+"`").isin(emptyWordsList)) | 
+        emptyDF = fileDF.select([count(when(col("`"+c+"`").isNull(), c)).alias(c) for c in fileDF.columns])
         #5
         print('#5 prepare data type info')
         new_fileDF = fileDF.select([str_type("`"+c+"`").alias(c + 'Type') for c in fileDF.columns] + ["`"+c+"`" for c in fileDF.columns])
