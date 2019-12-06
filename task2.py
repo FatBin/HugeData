@@ -83,11 +83,16 @@ addressPat = r"^\d+?[A-Za-z]*\s\w*\s?\w+?\s\w{2}\w*\s*\w*$"
 schoollevel_list = ['k-1', 'k-2', 'k-3', 'k-4','k-5','k-6','k-7','k-8','k-9','k-10','k-11','k-12'\
     'elementary', 'elementary school', 'primary', 'primary school', 'high school', 'middle', 'middle school', 'high school transfer', 'yabc', \
         'senior high school', 'college']
+#city names dict, which will be loaded in main function
+cityDict = {}
 
 def semanticMap(x):
     mat = str(x[0])
     lowerMat = mat.lower()
     
+    #city
+    if lowerMat in cityDict:
+        return ('city', x[1])
     #type of location
     if lowerMat in typeLocationList:
         return ('location_type', x[1])
@@ -155,9 +160,17 @@ if __name__ == "__main__":
 
     sc = SparkContext()
     fileLst = []
+    ### cluster
     with open('./cluster1.txt', 'r') as f:
         contentStr = f.read()
         fileLst = contentStr.replace('[',"").replace(']',"").replace("'","").replace("\n","").split(', ')
+    ### city names list
+    with open('./citylist.txt', 'r') as f:
+        cityNames = f.readlines()
+        for cityName in cityNames:
+            cityDict[cityName.replace("\n","")] = 1
+    print("Loaded {} city names".format(len(cityDict.keys())))
+
     spark = SparkSession \
     .builder \
     .appName("Python Spark SQL Project") \
