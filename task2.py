@@ -85,14 +85,18 @@ schoollevel_list = ['k-1', 'k-2', 'k-3', 'k-4','k-5','k-6','k-7','k-8','k-9','k-
         'senior high school', 'college']
 #city names dict, which will be loaded in main function
 cityDict = {}
+#city agency list
+agencyDict = {}
 
 def semanticMap(x):
     mat = str(x[0])
     lowerMat = mat.lower()
-    
     #city
     if lowerMat in cityDict:
         return ('city', x[1])
+    #city agency
+    if lowerMat in agencyDict:
+        return ('city_agency', x[1])
     #type of location
     if lowerMat in typeLocationList:
         return ('location_type', x[1])
@@ -170,7 +174,16 @@ if __name__ == "__main__":
         for cityName in cityNames:
             cityDict[cityName.replace("\n","")] = 1
     print("Loaded {} city names".format(len(cityDict.keys())))
-
+    ### city agencies list
+    cityAgencyDir = "./cityagencylist.txt"
+    with open(cityAgencyDir, 'r') as f:
+        agencys = f.readlines()
+        for agency in agencys:
+            if agency.find("(") >= 0:
+                agencyL = agency.split("(")
+                for a in agencyL:
+                    agencyDict[a.strip().replace(")","").lower()] = 1
+    print("Loaded {} city agency names(Abbreviations and full names)".format(len(agencyDict.keys())))
     spark = SparkSession \
     .builder \
     .appName("Python Spark SQL Project") \
