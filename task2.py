@@ -59,7 +59,7 @@ carMakeList = ['peter', 'inter', 'chevr', 'nissa', 'workh', 'acura', 'alfa romeo
 colorList = ['gry', 'gr', 'blk',  'orang', 'yellow', 'blue', 'red', 'green', 'black', 'brown', 'azure', 'ivory', 'teal', \
     'silver', 'purple', 'navy blue', 'navy', 'pea green', 'gray', 'orange', 'maroon', 'charcoal', 'aquamarine', 'coral', 'aquamarine', 'coral', \
         'fuchsia', 'wheat', 'lime', 'crimson', 'khaki', 'hot pink', 'megenta', 'olden', 'plum', 'olive', 'cyan', 'tan', 'biege',\
-            'bl', 'bk', 'gy', 'wht', 'wh', 'gy', 'ltg', 'white', 'rd', 'silve', 'silvr', 'tn', 'gray']
+            'bl', 'bk', 'gy', 'wht', 'wh', 'gy', 'ltg', 'white', 'rd', 'silve', 'silvr', 'tn', 'gray', 'yw', 'dkg', 'grn', 'brn']
 #business name,
 businessList = ['market', 'pizza', 'restaurant', 'kitchen', 'shop', 'cafe', 'sushi', 'panda', 'noodle',\
                'bar', 'deli', 'hotel']
@@ -67,7 +67,7 @@ businessList = ['market', 'pizza', 'restaurant', 'kitchen', 'shop', 'cafe', 'sus
 personNamePat = r"^[a-z ,.'-]+$" 
 # What if only have first name or last name? The A-Z is not required since all are lower()
 #vehicle type
-vehicleTypeList = ['ambulance', 'boat', 'trailer', 'motorcycle', 'bus', 'taxi', 'van']
+vehicleTypeList = ['ambulance', 'boat', 'trailer', 'motorcycle', 'bus', 'taxi', 'van', 'sedan', 'truck', 'box truck', 'passenger vehicle', 'sport utility / station wagon']
 #parks/playgrounds
 ppPat = r"([a-zA-Z0-9]{1,10} ){1,5}(park|playground)$"
 #street name
