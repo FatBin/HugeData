@@ -57,9 +57,9 @@ carMakeList = ['acura', 'alfa romeo', 'aston martin', 'audi', 'bentley', 'bmw', 
                 'ram', 'renault', 'rolls royce', 'saab', 'subaru', 'suzuki', 'tata motors', 'tesla', \
                     'toyota', 'volkswagen', 'volvo']
 #color 
-colorList = ['gry', 'blk', 'gy', 'wht', 'white', 'rd', 'silve', 'orang','yellow', 'blue', 'red', 'green', 'black', 'brown', 'azure', 'ivory', 'teal', \
-    'silver', 'purple', 'navy blue', 'pea green', 'gray', 'orange', 'maroon', 'charcoal', 'aquamarine', 'coral', 'aquamarine', 'coral', \
-        'fuchsia', 'wheat', 'lime', 'crimson', 'khaki', 'hot pink', 'megenta', 'olden', 'plum', 'olive', 'cyan']
+colorList = ['gry', 'gr', 'blk', 'bl', 'bk', 'gy', 'wht', 'wh',  'white', 'rd', 'silve', 'orang', 'yellow', 'blue', 'red', 'green', 'black', 'brown', 'azure', 'ivory', 'teal', \
+    'silver', 'purple', 'navy blue', 'navy', 'pea green', 'gray', 'orange', 'maroon', 'charcoal', 'aquamarine', 'coral', 'aquamarine', 'coral', \
+        'fuchsia', 'wheat', 'lime', 'crimson', 'khaki', 'hot pink', 'megenta', 'olden', 'plum', 'olive', 'cyan', 'tan']
 #business name
 businessList = ['market', 'pizza', 'restaurant', 'kitchen', 'shop', 'cafe', 'sushi', 'panda', 'noodle']
 #person name
