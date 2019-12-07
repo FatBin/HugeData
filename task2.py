@@ -60,7 +60,7 @@ carMakeList = ['acura', 'alfa romeo', 'aston martin', 'audi', 'bentley', 'bmw', 
 colorList = ['gry', 'gr', 'blk',  'orang', 'yellow', 'blue', 'red', 'green', 'black', 'brown', 'azure', 'ivory', 'teal', \
     'silver', 'purple', 'navy blue', 'navy', 'pea green', 'gray', 'orange', 'maroon', 'charcoal', 'aquamarine', 'coral', 'aquamarine', 'coral', \
         'fuchsia', 'wheat', 'lime', 'crimson', 'khaki', 'hot pink', 'megenta', 'olden', 'plum', 'olive', 'cyan', 'tan', 'biege',\
-            'bl', 'bk', 'gy', 'wht', 'wh', 'gy', 'ltg', 'white', 'rd', 'silve', 'silvr']
+            'bl', 'bk', 'gy', 'wht', 'wh', 'gy', 'ltg', 'white', 'rd', 'silve', 'silvr', 'tn', 'gray']
 #business name,
 businessList = ['market', 'pizza', 'restaurant', 'kitchen', 'shop', 'cafe', 'sushi', 'panda', 'noodle',\
                'bar', 'deli', 'hotel']
