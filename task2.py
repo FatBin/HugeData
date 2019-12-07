@@ -3,10 +3,14 @@ import pyspark
 import string
 import json
 import re
+import os
 
 from pyspark import SparkContext
 from pyspark.sql import SparkSession
 from pyspark.sql import SQLContext
+
+import sys
+sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf8', buffering=1)
 
 rowsNum = 0
 
@@ -67,7 +71,7 @@ businessList = ['market', 'pizza', 'restaurant', 'kitchen', 'shop', 'cafe', 'sus
 personNamePat = r"^[a-z ,.'-]+$" 
 # What if only have first name or last name? The A-Z is not required since all are lower()
 #vehicle type
-vehicleTypeList = ['ambulance', 'boat', 'trailer', 'motorcycle', 'bus', 'taxi', 'van', 'sedan', 'truck', 'box truck', 'passenger vehicle', 'sport utility / station wagon']
+vehicleTypeList = ['station wagon/sport utility vehicle','ambulance', 'boat', 'trailer', 'motorcycle', 'bus', 'taxi', 'van', 'sedan', 'truck', 'box truck', 'passenger vehicle', 'sport utility / station wagon']
 #parks/playgrounds
 ppPat = r"([a-zA-Z0-9]{1,10} ){1,5}(park|playground)$"
 #street name
@@ -165,30 +169,43 @@ def semanticMap(x):
         return ('person_name', x[1])
     return ('other', x[1])
 
+emptyWordList = ["", "no data", "n/a", "null"]
+
+exceptList = []
+
+def checkEmpty(x):
+    if not x[0]:
+        return ('number_empty_cells',x[1])
+    mat = str(x[0])
+    if mat in emptyWordList:
+        return ('number_empty_cells',x[1])
+    return ('number_non_empty_cells',x[1])
+
 if __name__ == "__main__":
     directory = "/user/hm74/NYCOpenData"
     outDir = "./task2out"
     labelList = []
     sc = SparkContext()
     fileLst = []
+    perList = []
     ### label list
-    with open('./labellist.txt', 'r') as f:
+    with open('./labellist.txt', 'r', encoding='UTF-8') as f:
         labels = f.readlines()
         for label in labels:
-            labelList.append(label.split(" ")[1])
+            labelList.append(label.split(" ")[1].replace("\n",""))
     ### cluster
-    with open('./cluster1.txt', 'r') as f:
+    with open('./cluster1.txt', 'r', encoding='UTF-8') as f:
         contentStr = f.read()
         fileLst = contentStr.replace('[',"").replace(']',"").replace("'","").replace("\n","").split(', ')
     ### city names list
-    with open('./citylist.txt', 'r') as f:
+    with open('./citylist.txt', 'r', encoding='UTF-8') as f:
         cityNames = f.readlines()
         for cityName in cityNames:
             cityDict[cityName.replace("\n","")] = 1
     print("Loaded {} city names".format(len(cityDict.keys())))
     ### city agencies list
     cityAgencyDir = "./cityagencylist.txt"
-    with open(cityAgencyDir, 'r') as f:
+    with open(cityAgencyDir, 'r', encoding='UTF-8') as f:
         agencys = f.readlines()
         for agency in agencys:
             if agency.find("(") >= 0:
@@ -204,52 +221,84 @@ if __name__ == "__main__":
     
     fNum = len(fileLst)
     for i in range(0, len(fileLst)):
-        fileInfo = fileLst[i]
-        fStr = fileInfo.split(".")
-        fileName = fStr[0]
-        colName = fStr[1]
-        print('*'*50)
-        print('Processing file: {} with column: {}, current step: {}/{}'.format( \
-            fileName, colName, i+1, fNum))
-        outputDicts = {}
-        outputDicts['column_name'] = colName
-        outputDicts['semantic_types'] = []
-        filePath = directory + "/" + fileName +".tsv.gz"
-        fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t', encoding = 'UTF-8).load(filePath)
-        columns = fileDF.columns
-        if colName not in columns:
-            if colName.find('CORE_SUBJECT') >= 0:
-                colName = 'CORE SUBJECT'
+        try:
+            fileInfo = fileLst[i]
+            fStr = fileInfo.split(".")
+            fileName = fStr[0]
+            colName = fStr[1]
+            if fileName == 'jz4z-kudi':
+                continue
+            print('*'*50)
+            print('Processing file: {} with column: {}, current step: {}/{}'.format( \
+                fileName, colName, i+1, fNum))
+            outputDicts = {}
+            outputDicts['column_name'] = colName
+            outputDicts['semantic_types'] = []
+            filePath = directory + "/" + fileName +".tsv.gz"
+            fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t', encoding = 'UTF-8').load(filePath)
+            columns = fileDF.columns
+            if colName not in columns:
+                if colName.find('CORE_SUBJECT') >= 0:
+                    colName = 'CORE SUBJECT'
+                else:
+                    colName = colName.replace("_", " ") 
+                print('Renamed selected column name')
+            if colName not in columns:
+                if colName == 'CORE SUBJECT':
+                    for c in columns:
+                        if c.find(colName) >= 0:
+                            colName = c
+                            print('Renamed selected column name')
+                            break
+                else:
+                    for c in columns:
+                        if cosSim(colName, c) >=0.8:
+                            colName = c
+                            print('Renamed selected column name')
+                            break
+            disRDD = fileDF.select(colName).rdd
+            print('Finished selecting column from dataframe: {}'.format(fileName))
+            rddCol = disRDD.map(lambda x: (x[colName], 1))
+            disRDD = rddCol.reduceByKey(lambda x,y:(x+y))
+            rowsNum = len(disRDD.collect())
+            sRDD = disRDD.map(lambda x: semanticMap(x))
+            SemRDD = sRDD.reduceByKey(lambda x,y:(x+y))
+            SemList = SemRDD.collect()
+            correctCnt = 0
+            for sem in SemList:
+                outputDicts['semantic_types'].append({
+                    'semantic_type': labelList[i],
+                    'label': sem[0],
+                    'count': sem[1]
+                })
+                if sem[0] == labelList[i]:
+                    correctCnt = sem[1]
+            with open(outDir+"/"+fileName+"_semantic.json", 'w', encoding='UTF-8') as fw:
+                json.dump(outputDicts,fw)
+            print('Finished output file: {}, the index is: {}'.format(fileName, i))
+            
+            NEmptyRDD = disRDD.map(lambda x: checkEmpty(x)).reduceByKey(lambda x,y:(x+y))
+            NEList = NEmptyRDD.collect()
+            neCnt = 0
+            neDct = {}
+            for ne in NEList:
+                neDct[ne[0]] = int(ne[1])
+            if 'number_non_empty_cells' not in neDct:
+                perList.append('all cells empty')
             else:
-                colName = colName.replace("_", " ") 
-            print('Renamed selected column name')
-        if colName not in columns:
-            if colName == 'CORE SUBJECT':
-                for c in columns:
-                    if c.find(colName) >= 0:
-                        colName = c
-                        print('Renamed selected column name')
-                        break
-            else:
-                for c in columns:
-                    if cosSim(colName, c) >=0.8:
-                        colName = c
-                        print('Renamed selected column name')
-                        break
-        disRDD = fileDF.select(colName).rdd
-        print('Finished selecting column from dataframe: {}'.format(fileName))
-        rddCol = disRDD.map(lambda x: (x[colName], 1))
-        disRDD = rddCol.reduceByKey(lambda x,y:(x+y))
-        rowsNum = len(disRDD.collect())
-        sRDD = disRDD.map(lambda x: semanticMap(x))
-        SemRDD = sRDD.reduceByKey(lambda x,y:(x+y))
-        SemList = SemRDD.collect()
-        for sem in SemList:
-            outputDicts['semantic_types'].append({
-                'semantic_type': labelList[i],
-                'label': sem[0],
-                'count': sem[1]
-            })
-        with open(outDir+"/"+fileName+"_semantic.json", 'w') as fw:
-            json.dump(outputDicts,fw)
-        print('Finished output file: {}, the index is: {}'.format(fileName, i))
+                neCnt = int(neDct['number_non_empty_cells'])
+                perList.append(float(correctCnt)/neCnt)
+            openM = 'w'
+            if os.path.isfile("./per.txt"):
+                openM = 'a'
+            with open("./per.txt", 'w', encoding='UTF-8') as f:
+                for i in range(len(perList)):
+                    line = str(i) + " " + str(perList[i])+"\n"
+                    f.write(line)
+        except:
+            exceptList.append(i)
+            print('processing file index {} excepted'.format(i))
+            with open("./errorList2.txt", openM) as f:
+                for i in exceptList:
+                    line = str(i)+"\n"
+                    f.write(line)
