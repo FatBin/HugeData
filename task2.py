@@ -47,7 +47,8 @@ phonePatList = [r'^[2-9]\d{2}-\d{3}-\d{4}$', r'((\(\d{3}\) ?)|(\d{3}-))?\d{3}-\d
 #website
 webSitePat = r'^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$'
 #brouugh
-boroughList = ['brooklyn', 'manhattan', 'queens', 'bronx', 'the bronx', 'staten island']
+boroughList = ['brooklyn', 'manhattan', 'queens', 'bronx', 'the bronx', 'staten island', 'clifto', \
+    'baldwin', 'astoria','mt.kisco', 'charlotte', 'bklyn', 'dobbs ferry', 'staten island', 'elmhurst', 'maspeth', 'nyc']
 #car make
 carMakeList = ['acura', 'alfa romeo', 'aston martin', 'audi', 'bentley', 'bmw', 'bugatti', 'buick', 'cadillac', 'chevrolet', \
     'chrysler', 'citroen', 'dodge', 'ferrari', 'fiat', 'ford', 'geely', 'general motors', 'gmc', 'honda', 'hyundai', \
@@ -56,11 +57,11 @@ carMakeList = ['acura', 'alfa romeo', 'aston martin', 'audi', 'bentley', 'bmw', 
                 'ram', 'renault', 'rolls royce', 'saab', 'subaru', 'suzuki', 'tata motors', 'tesla', \
                     'toyota', 'volkswagen', 'volvo']
 #color 
-colorList = ['white', 'yellow', 'blue', 'red', 'green', 'black', 'brown', 'azure', 'ivory', 'teal', \
+colorList = ['gry', 'blk', 'gy', 'wht', 'white', 'rd', 'silve', 'orang','yellow', 'blue', 'red', 'green', 'black', 'brown', 'azure', 'ivory', 'teal', \
     'silver', 'purple', 'navy blue', 'pea green', 'gray', 'orange', 'maroon', 'charcoal', 'aquamarine', 'coral', 'aquamarine', 'coral', \
         'fuchsia', 'wheat', 'lime', 'crimson', 'khaki', 'hot pink', 'megenta', 'olden', 'plum', 'olive', 'cyan']
 #business name
-businessNamePat = r"^((?![\^!@#$*~ <>?]).)((?![\^!@#$*~<>?]).){0,73}((?![\^!@#$*~ <>?]).)$"
+businessList = ['market', 'pizza', 'restaurant', 'kitchen', 'shop', 'cafe', 'sushi', 'panda', 'noodle']
 #person name
 personNamePat = r"^[a-z ,.'-]+$" 
 # What if only have first name or last name? The A-Z is not required since all are lower()
@@ -69,14 +70,14 @@ vehicleTypeList = ['ambulance', 'boat', 'trailer', 'motorcycle', 'bus', 'taxi', 
 #parks/playgrounds
 ppPat = r"([a-zA-Z0-9]{1,10} ){1,5}(park|playground)$"
 #street name
-streetPat = r"([a-zA-Z0-9]{1,10} ){1,5}(avenue|ave|court|ct|street|st|drive|dr|lane|ln|road|rd|blvd|plaza|parkway|pkwy)$"
+streetPat = r"([a-zA-Z0-9]{1,10} ){1,5}(avenue|ave|ave\.|court|ct|street|st|drive|dr|lane|ln|road|rd|blvd|plaza|parkway|pkwy)$"
 #type of location
 typeLocationList = ['abandoned building', 'airport terminal', 'airport', 'bank', 'church', 'clothing', 'boutique']
 #lat/lon coordinates
 latLonCoordPat = r"^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$"
 latLonCoordPat2 = r"^(([1-9]\d?)|(1[0-7]\d))(\.\d{3,7})|180|0(\.\d{1,6})?"
 #address
-addressPat = r"^\d+?[A-Za-z]*\s\w*\s?\w+?\s\w{2}\w*\s*\w*$"
+addressPat = r"^\d+?[A-Za-z]*\s\w*\s?\w+?\s\w{2}\w*\s*\w*"
 #neighborhood
 
 #school level
@@ -91,6 +92,10 @@ agencyDict = {}
 def semanticMap(x):
     mat = str(x[0])
     lowerMat = mat.lower()
+    #business name
+    for business in businessList:
+        if lowerMat.find(business):
+            return ('business_name', x[1])
     #city
     if lowerMat in cityDict:
         return ('city', x[1])
@@ -150,10 +155,7 @@ def semanticMap(x):
     for carMake in carMakeList:
         if cosSim(carMake, lowerMat) >= 0.8:
             return ('car_make', x[1])
-    #business name
-    # if re.match(businessNamePat, mat):
-    #     return ('Business name', x[1])
-    #person name
+    
     if re.match(personNamePat, mat):
         return ('person_name', x[1])
     return ('other', x[1])
@@ -203,7 +205,7 @@ if __name__ == "__main__":
         outputDicts['column_name'] = colName
         outputDicts['semantic_types'] = []
         filePath = directory + "/" + fileName +".tsv.gz"
-        fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t').load(filePath)
+        fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t', encoding = 'UTF-8).load(filePath)
         columns = fileDF.columns
         if colName not in columns:
             if colName.find('CORE SUBJECT'):
