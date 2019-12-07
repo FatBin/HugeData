@@ -36,7 +36,7 @@ def editDis(str1, str2):
 
 def cosSim(str1, str2):
     edit_distance = editDis(str1, str2)
-    edit_distance_similarity=1 - edit_distance / max(len(str1), len(str2))
+    edit_distance_similarity=1 - float(edit_distance) / max(len(str1), len(str2))
     return edit_distance_similarity
 #zip code
 zipPat = r'^[0-9]{5}(?:-[0-9]{4})?$'
@@ -98,7 +98,7 @@ def semanticMap(x):
     lowerMat = mat.lower()
     #business name
     for business in businessList:
-        if lowerMat.find(business):
+        if lowerMat.find(business) >= 0:
             return ('business_name', x[1])
     #city
     if lowerMat in cityDict:
@@ -217,7 +217,7 @@ if __name__ == "__main__":
         fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t', encoding = 'UTF-8).load(filePath)
         columns = fileDF.columns
         if colName not in columns:
-            if colName.find('CORE SUBJECT'):
+            if colName.find('CORE SUBJECT') >= 0:
                 colName = 'CORE SUBJECT'
             else:
                 colName = colName.replace("_", " ") 
@@ -225,7 +225,7 @@ if __name__ == "__main__":
         if colName not in columns:
             if colName == 'CORE SUBJECT':
                 for c in columns:
-                    if c.find(colName):
+                    if c.find(colName) >= 0:
                         colName = c
                         print('Renamed selected column name')
                         break
