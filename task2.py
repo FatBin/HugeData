@@ -56,11 +56,13 @@ carMakeList = ['acura', 'alfa romeo', 'aston martin', 'audi', 'bentley', 'bmw', 
                 'ram', 'renault', 'rolls royce', 'saab', 'subaru', 'suzuki', 'tata motors', 'tesla', \
                     'toyota', 'volkswagen', 'volvo']
 #color 
-colorList = ['gry', 'gr', 'blk', 'bl', 'bk', 'gy', 'wht', 'wh',  'white', 'rd', 'silve', 'orang', 'yellow', 'blue', 'red', 'green', 'black', 'brown', 'azure', 'ivory', 'teal', \
+colorList = ['gry', 'gr', 'blk',  'orang', 'yellow', 'blue', 'red', 'green', 'black', 'brown', 'azure', 'ivory', 'teal', \
     'silver', 'purple', 'navy blue', 'navy', 'pea green', 'gray', 'orange', 'maroon', 'charcoal', 'aquamarine', 'coral', 'aquamarine', 'coral', \
-        'fuchsia', 'wheat', 'lime', 'crimson', 'khaki', 'hot pink', 'megenta', 'olden', 'plum', 'olive', 'cyan', 'tan']
-#business name
-businessList = ['market', 'pizza', 'restaurant', 'kitchen', 'shop', 'cafe', 'sushi', 'panda', 'noodle']
+        'fuchsia', 'wheat', 'lime', 'crimson', 'khaki', 'hot pink', 'megenta', 'olden', 'plum', 'olive', 'cyan', 'tan', 'biege',\
+            'bl', 'bk', 'gy', 'wht', 'wh', 'gy', 'ltg', 'white', 'rd', 'silve', 'silvr', 'tn', 'gray']
+#business name,
+businessList = ['market', 'pizza', 'restaurant', 'kitchen', 'shop', 'cafe', 'sushi', 'panda', 'noodle',\
+               'bar', 'deli', 'hotel']
 #person name
 personNamePat = r"^[a-z ,.'-]+$" 
 # What if only have first name or last name? The A-Z is not required since all are lower()
@@ -83,12 +85,11 @@ addressPat = r"^\d+?[A-Za-z]*\s\w*\s?\w+?\s\w{2}\w*\s*\w*"
 schoollevel_list = ['k-1', 'k-2', 'k-3', 'k-4','k-5','k-6','k-7','k-8','k-9','k-10','k-11','k-12',\
     'elementary', 'elementary school', 'primary', 'primary school', 'high school', 'middle', 'middle school', 'high school transfer', 'yabc', \
         'senior high school', 'college']
-#city names dict, which will be loaded in main function
 #area_of_study
 area_of_study_list = ['business', 'health professions', 'law & government', 'science & math',\
                       'architecture','visual art & design', 'engineering', 'film/video', 'hospitality, travel, & tourism',\
-                      'environmental science', 'communications', 'teaching', 'jrotc']
-
+                      'environmental science', 'communications', 'teaching', 'jrotc', 'zoned', 'animal science']
+#city names dict, which will be loaded in main function
 cityDict = {}
 #city agency list
 agencyDict = {}
