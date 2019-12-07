@@ -71,7 +71,9 @@ businessList = ['market', 'pizza', 'restaurant', 'kitchen', 'shop', 'cafe', 'sus
 personNamePat = r"^[a-z ,.'-]+$" 
 # What if only have first name or last name? The A-Z is not required since all are lower()
 #vehicle type
-vehicleTypeList = ['station wagon/sport utility vehicle', 'ambulance', 'boat', 'trailer', 'motorcycle', 'bus', 'taxi', 'van', 'sedan', 'truck', 'box truck', 'passenger vehicle', 'sport utility / station wagon']
+vehicleTypeList = ['station wagon/sport utility vehicle', 'ambulance', 'boat', 'trailer', 'motorcycle', 'bus', 'taxi', 'van', 'sedan', 'truck', \
+                   'box truck', 'passenger vehicle', 'sport utility / station wagon', 'beverage truck', 'garbage or refuse', 'pick-up truck',\
+                  'motorcycle', 'pk', 'tractor truck diesel', 'flat bed', 'bike']
 #parks/playgrounds
 ppPat = r"([a-zA-Z0-9]{1,10} ){1,5}(park|playground)$"
 #street name
