@@ -3,6 +3,7 @@ import pyspark
 import string
 import json
 import re
+import os
 
 from pyspark import SparkContext
 from pyspark.sql import SparkSession
@@ -15,6 +16,9 @@ from pyspark.sql.functions import udf
 import datetime
 from dateutil.parser import parse
 import difflib
+
+import sys
+sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf8', buffering=1)
 
 @udf("string")
 def str_type(string):
@@ -84,8 +88,6 @@ def count_text_length(data):
 
 emptyWordList = ["", "no data", "n/a", "null"]
 
-exceptList = []
-
 def checkEmpty(x):
     if not x[0]:
         return ('number_empty_cells',x[1])
@@ -94,6 +96,26 @@ def checkEmpty(x):
         return ('number_empty_cells',x[1])
     return ('number_non_empty_cells',x[1])
 
+exceptList = []
+
+def outErrorList(i):
+    erlst = []
+    print('processing file index {} excepted'.format(i))
+    if os.path.isfile("./errorList.txt"):
+        with open('./errorList.txt', 'r', encoding='UTF-8') as f:
+            erStr = f.readlines()
+            for line in erStr:
+                line = line.replace("\n","")
+                erlst.append(line)
+        if str(i) not in erlst:
+            with open('./errorList.txt', 'a', encoding='UTF-8') as f:
+                line = str(i)+"\n"
+                f.write(line)
+    else:
+        with open("./errorList.txt", 'w') as f:
+            for i in exceptList:
+                line = str(i)+"\n"
+                f.write(line)
 
 if __name__ == "__main__":
 
@@ -109,7 +131,7 @@ if __name__ == "__main__":
     .getOrCreate()
     
     fNum = len(fileNames)
-    for i in range(388, len(fileNames)):
+    for i in range(580, len(fileNames)):
         try:
             name = fileNames[i]
             outputDicts = {}
@@ -117,7 +139,7 @@ if __name__ == "__main__":
             print('current step {}/{}'.format(i+1, fNum))
             outputDicts["dataset_name"] = name
             filePath = directory + "/" + name +".tsv.gz"
-            fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t').load(filePath)
+            fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t').load(filePath).cache()
             print('creating dataframe for ' + name)
             # #1 non empty cell
             # noEmptyDF = fileDF.select([count(when((~col("`"+c+"`").isin(emptyWordsList)) & (~col("`"+c+"`").isNull(), c))).alias(c) for c in fileDF.columns])
@@ -229,10 +251,6 @@ if __name__ == "__main__":
             with open(outDir+"/"+name+"_generic.json", 'w') as fw:
                 json.dump(outputDicts,fw)
             print('Finished output file: {}, the index is: {}'.format(name, i))
-        except:
+        except Exception as e:
             exceptList.append(i)
-            print('processing file index {} excepted'.format(i))
-            with open("./errorList.txt", 'w') as f:
-                for i in exceptList:
-                    line = str(i)+"\n"
-                    f.write(line)
+            outErrorList(i)

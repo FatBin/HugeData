@@ -170,7 +170,7 @@ def semanticMap(x):
     return ('other', x[1])
 
 emptyWordList = ["", "no data", "n/a", "null"]
-
+perList = []
 exceptList = []
 
 def checkEmpty(x):
@@ -180,6 +180,44 @@ def checkEmpty(x):
     if mat in emptyWordList:
         return ('number_empty_cells',x[1])
     return ('number_non_empty_cells',x[1])
+
+def outErrorList(i):
+    erlst = []
+    print('processing file index {} excepted'.format(i))
+    if os.path.isfile("./errorList2.txt"):
+        with open('./errorList2.txt', 'r', encoding='UTF-8') as f:
+            erStr = f.readlines()
+            for line in erStr:
+                line = line.replace("\n","")
+                erlst.append(line)
+        if str(i) not in erlst:
+            with open('./errorList2.txt', 'a', encoding='UTF-8') as f:
+                line = str(i)+"\n"
+                f.write(line)
+    else:
+        with open("./errorList2.txt", 'w') as f:
+            for i in exceptList:
+                line = str(i)+"\n"
+                f.write(line)
+
+def outPerList(i, p):
+    plst = []
+    if os.path.isfile("./percision.txt"):
+        with open("./percision.txt", 'r', encoding='UTF-8') as f:
+            pStr = f.readlines()
+            for line in pStr:
+                line = line = line.split(" ")[0]
+                plst.append(line)
+        with open("./percision.txt", 'a', encoding='UTF-8') as f:
+            if str(i) not in plst:
+                line = str(i) + " " + str(p)+"\n"
+                f.write(line)
+    else:
+        with open("./percision.txt", 'w', encoding='UTF-8') as f:
+            for j in range(len(perList)):
+                line = str(perList[j][0]) + " " + str(perList[j][1])+"\n"
+                f.write(line)
+    print('finised output percision')
 
 if __name__ == "__main__":
     directory = "/user/hm74/NYCOpenData"
@@ -220,17 +258,19 @@ if __name__ == "__main__":
     .getOrCreate()
     
     fNum = len(fileLst)
-    for i in range(0, len(fileLst)):
+    for i in range(0, 90):
         try:
             fileInfo = fileLst[i]
             fStr = fileInfo.split(".")
             fileName = fStr[0]
-            colName = fStr[1]
-            if fileName == 'jz4z-kudi':
-                continue
+            colName = fStr[1]    
             print('*'*50)
             print('Processing file: {} with column: {}, current step: {}/{}'.format( \
                 fileName, colName, i+1, fNum))
+            if fileName == 'jz4z-kudi':
+                exceptList.append(i)
+                outErrorList(i)
+                continue
             outputDicts = {}
             outputDicts['column_name'] = colName
             outputDicts['semantic_types'] = []
@@ -287,18 +327,9 @@ if __name__ == "__main__":
                 perList.append('all cells empty')
             else:
                 neCnt = int(neDct['number_non_empty_cells'])
-                perList.append(float(correctCnt)/neCnt)
-            openM = 'w'
-            if os.path.isfile("./per.txt"):
-                openM = 'a'
-            with open("./per.txt", 'w', encoding='UTF-8') as f:
-                for i in range(len(perList)):
-                    line = str(i) + " " + str(perList[i])+"\n"
-                    f.write(line)
-        except:
+                per = float(correctCnt)/neCnt
+                perList.append((i, per))
+                outPerList(i, per)
+        except Exception as e:
             exceptList.append(i)
-            print('processing file index {} excepted'.format(i))
-            with open("./errorList2.txt", openM) as f:
-                for i in exceptList:
-                    line = str(i)+"\n"
-                    f.write(line)
+            outErrorList(i)
