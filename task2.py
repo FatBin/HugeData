@@ -125,7 +125,7 @@ def semanticMap(x):
         return ('zip_code', x[1])
     #website
     if re.match(webSitePat, lowerMat):
-        return ('websites', x[1])
+        return ('website', x[1])
     latlonMat = lowerMat.replace(")","").replace("(","").replace(" ","")
     #lat/lon coordinates
     if re.match(latLonCoordPat, latlonMat):
