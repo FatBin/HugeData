@@ -88,7 +88,7 @@ schoollevel_list = ['k-1', 'k-2', 'k-3', 'k-4','k-5','k-6','k-7','k-8','k-9','k-
 #area_of_study
 area_of_study_list = ['business', 'health professions', 'law & government', 'science & math',\
                       'architecture','visual art & design', 'engineering', 'film/video', 'hospitality, travel, & tourism',\
-                      'environmental science', 'communications', 'teaching', 'jrotc']
+                      'environmental science', 'communications', 'teaching', 'jrotc', 'zoned', 'animal science']
 #city names dict, which will be loaded in main function
 cityDict = {}
 #city agency list
