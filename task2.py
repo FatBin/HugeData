@@ -56,9 +56,9 @@ carMakeList = ['acura', 'alfa romeo', 'aston martin', 'audi', 'bentley', 'bmw', 
                 'ram', 'renault', 'rolls royce', 'saab', 'subaru', 'suzuki', 'tata motors', 'tesla', \
                     'toyota', 'volkswagen', 'volvo']
 #color 
-colorList = ['gry', 'blk', 'gy', 'wht', 'white', 'rd', 'silve', 'orang','yellow', 'blue', 'red', 'green', 'black', 'brown', 'azure', 'ivory', 'teal', \
-    'silver', 'purple', 'navy blue', 'pea green', 'gray', 'orange', 'maroon', 'charcoal', 'aquamarine', 'coral', 'aquamarine', 'coral', \
-        'fuchsia', 'wheat', 'lime', 'crimson', 'khaki', 'hot pink', 'megenta', 'olden', 'plum', 'olive', 'cyan']
+colorList = ['gry', 'gr', 'blk', 'bl', 'bk', 'gy', 'wht', 'wh',  'white', 'rd', 'silve', 'orang', 'yellow', 'blue', 'red', 'green', 'black', 'brown', 'azure', 'ivory', 'teal', \
+    'silver', 'purple', 'navy blue', 'navy', 'pea green', 'gray', 'orange', 'maroon', 'charcoal', 'aquamarine', 'coral', 'aquamarine', 'coral', \
+        'fuchsia', 'wheat', 'lime', 'crimson', 'khaki', 'hot pink', 'megenta', 'olden', 'plum', 'olive', 'cyan', 'tan']
 #business name
 businessList = ['market', 'pizza', 'restaurant', 'kitchen', 'shop', 'cafe', 'sushi', 'panda', 'noodle']
 #person name
@@ -80,10 +80,15 @@ addressPat = r"^\d+?[A-Za-z]*\s\w*\s?\w+?\s\w{2}\w*\s*\w*"
 #neighborhood
 
 #school level
-schoollevel_list = ['k-1', 'k-2', 'k-3', 'k-4','k-5','k-6','k-7','k-8','k-9','k-10','k-11','k-12'\
+schoollevel_list = ['k-1', 'k-2', 'k-3', 'k-4','k-5','k-6','k-7','k-8','k-9','k-10','k-11','k-12',\
     'elementary', 'elementary school', 'primary', 'primary school', 'high school', 'middle', 'middle school', 'high school transfer', 'yabc', \
         'senior high school', 'college']
 #city names dict, which will be loaded in main function
+#area_of_study
+area_of_study_list = ['business', 'health professions', 'law & government', 'science & math',\
+                      'architecture','visual art & design', 'engineering', 'film/video', 'hospitality, travel, & tourism',\
+                      'environmental science', 'communications', 'teaching', 'jrotc']
+
 cityDict = {}
 #city agency list
 agencyDict = {}
