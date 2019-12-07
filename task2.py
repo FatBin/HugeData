@@ -66,12 +66,14 @@ colorList = ['gry', 'gr', 'blk',  'orang', 'yellow', 'blue', 'red', 'green', 'bl
             'bl', 'bk', 'gy', 'wht', 'wh', 'gy', 'ltg', 'white', 'rd', 'silve', 'silvr', 'tn', 'gray', 'yw', 'dkg', 'grn', 'brn']
 #business name,
 businessList = ['market', 'pizza', 'restaurant', 'kitchen', 'shop', 'cafe', 'sushi', 'panda', 'noodle',\
-               'bar', 'deli', 'hotel']
+               'bar', 'deli', 'hotel', 'service', 'pub', 'transportation', 'svce', 'cars', 'line']
 #person name
 personNamePat = r"^[a-z ,.'-]+$" 
 # What if only have first name or last name? The A-Z is not required since all are lower()
 #vehicle type
-vehicleTypeList = ['station wagon/sport utility vehicle','ambulance', 'boat', 'trailer', 'motorcycle', 'bus', 'taxi', 'van', 'sedan', 'truck', 'box truck', 'passenger vehicle', 'sport utility / station wagon']
+vehicleTypeList = ['station wagon/sport utility vehicle', 'ambulance', 'boat', 'trailer', 'motorcycle', 'bus', 'taxi', 'van', 'sedan', 'truck', \
+                   'box truck', 'passenger vehicle', 'sport utility / station wagon', 'beverage truck', 'garbage or refuse', 'pick-up truck',\
+                  'motorcycle', 'pk', 'tractor truck diesel', 'flat bed', 'bike']
 #parks/playgrounds
 ppPat = r"([a-zA-Z0-9]{1,10} ){1,5}(park|playground)$"
 #street name
@@ -93,6 +95,9 @@ schoollevel_list = ['k-1', 'k-2', 'k-3', 'k-4','k-5','k-6','k-7','k-8','k-9','k-
 area_of_study_list = ['business', 'health professions', 'law & government', 'science & math',\
                       'architecture','visual art & design', 'engineering', 'film/video', 'hospitality, travel, & tourism',\
                       'environmental science', 'communications', 'teaching', 'jrotc', 'zoned', 'animal science']
+#subject_in_school
+subject_in_school_list = ['english', 'math', 'science', 'social studies']
+
 #city names dict, which will be loaded in main function
 cityDict = {}
 #city agency list
