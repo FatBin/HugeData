@@ -84,12 +84,11 @@ addressPat = r"^\d+?[A-Za-z]*\s\w*\s?\w+?\s\w{2}\w*\s*\w*"
 schoollevel_list = ['k-1', 'k-2', 'k-3', 'k-4','k-5','k-6','k-7','k-8','k-9','k-10','k-11','k-12',\
     'elementary', 'elementary school', 'primary', 'primary school', 'high school', 'middle', 'middle school', 'high school transfer', 'yabc', \
         'senior high school', 'college']
-#city names dict, which will be loaded in main function
 #area_of_study
 area_of_study_list = ['business', 'health professions', 'law & government', 'science & math',\
                       'architecture','visual art & design', 'engineering', 'film/video', 'hospitality, travel, & tourism',\
                       'environmental science', 'communications', 'teaching', 'jrotc']
-
+#city names dict, which will be loaded in main function
 cityDict = {}
 #city agency list
 agencyDict = {}
