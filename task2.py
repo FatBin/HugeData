@@ -38,7 +38,6 @@ def cosSim(str1, str2):
     edit_distance = editDis(str1, str2)
     edit_distance_similarity=1 - edit_distance / max(len(str1), len(str2))
     return edit_distance_similarity
-
 #zip code
 zipPat = r'^[0-9]{5}(?:-[0-9]{4})?$'
 #phone number 
@@ -163,9 +162,14 @@ def semanticMap(x):
 if __name__ == "__main__":
     directory = "/user/hm74/NYCOpenData"
     outDir = "./task2out"
-
+    labelList = []
     sc = SparkContext()
     fileLst = []
+    ### label list
+    with open('./labellist.txt', 'r') as f:
+        labels = f.readlines()
+        for label in labels:
+            labelList.append(label.split(" ")[1])
     ### cluster
     with open('./cluster1.txt', 'r') as f:
         contentStr = f.read()
@@ -236,7 +240,7 @@ if __name__ == "__main__":
         SemList = SemRDD.collect()
         for sem in SemList:
             outputDicts['semantic_types'].append({
-                'semantic_type': "unknow",
+                'semantic_type': labelList[i],
                 'label': sem[0],
                 'count': sem[1]
             })
