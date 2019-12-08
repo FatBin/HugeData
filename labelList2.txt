@@ -1,6 +1,6 @@
 90 area_of_study
 91 building_classification 
-92 neighborhood "可以整理下这个里面的内容"
+92 neighborhood
 93 subject_in_school "a lot of -"
 94 color
 95 street_name
