@@ -22,7 +22,7 @@ import sys
 sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf8', buffering=1)
 
 
-emptyWordList = ["", "no data", "n/a", "null"
+emptyWordList = ["", "no data", "n/a", "null"]
 
 def str_type3(string, count):
     if string is None:
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     .getOrCreate()
     
     fNum = len(fileNames)
-    for i in range(869, len(fileNames)):
+    for i in range(0, len(fileNames)):
         try:
             name = fileNames[i]
             outputDicts = {}
@@ -110,7 +110,7 @@ if __name__ == "__main__":
             filePath = directory + "/" + name +".tsv.gz"
             fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t', multiLine = True).load(filePath).cache()
             print('creating dataframe for ' + name)
-            # ## add to output json
+            # add to output json
             outputDicts["columns"] = []
             colCnt = 0
             colNum = len(fileDF.columns)
@@ -168,7 +168,6 @@ if __name__ == "__main__":
                 numOfDate = columnOfDate.count()
                 numOfText = columnOfText.count()
                 data_types = []
-                print(time.asctime(time.localtime(time.time())), '*' * 40, 'Integer start')
                 if numOfInteger > 0:
                     integerType = {}
                     integerType['type'] = 'INTEGER (LONG)'
@@ -187,7 +186,6 @@ if __name__ == "__main__":
                     squareAndCount = columnOfIntegerValueAndCount.aggregate((0, 0), sumOfTwoSquare, countOfSumSquare)
                     integerType['stddev'] = math.sqrt(squareAndCount[0] / squareAndCount[1])
                     data_types.append(integerType)
-                print(time.asctime(time.localtime(time.time())), '*' * 40, 'real start')
                 if numOfReal > 0:
                     realType = {}
                     realType['count'] = columnOfReal.map(lambda x: x[1][1]).sum()
@@ -204,7 +202,6 @@ if __name__ == "__main__":
                     squareAndCount = columnOfRealValueAndCount.aggregate((0, 0), sumOfTwoSquare, countOfSumSquare)
                     realType['stddev'] = math.sqrt(squareAndCount[0] / squareAndCount[1])
                     data_types.append(realType)
-                print(time.asctime(time.localtime(time.time())), '*' * 40, 'date start')
                 if numOfDate > 0:
                     dateType = {}
                     dateType['type'] = 'DATE/TIME'
@@ -213,7 +210,6 @@ if __name__ == "__main__":
                     dateType['max_value'] = columnOfDateValue.max()
                     dateType['min_value'] = columnOfDateValue.min()
                     data_types.append(dateType)
-                print(time.asctime(time.localtime(time.time())), '*' * 40, 'text start')
                 if numOfText > 0:
                     textType = {}
                     textType['type'] = 'TEXT'
@@ -223,7 +219,6 @@ if __name__ == "__main__":
                     textType['longest_values'] = columnOfTextValue.sortBy(lambda x: len(x), False).take(5)
                     textType['average_length'] = columnOfTextValue.map(lambda x: len(x)).mean()
                     data_types.append(textType)
-                print(data_types)
 
                 pdict['data_types'] = data_types
                 print('#4 finished')    
