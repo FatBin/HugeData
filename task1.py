@@ -16,67 +16,36 @@ from pyspark.sql.functions import udf
 import datetime
 from dateutil.parser import parse
 import difflib
+import math
 
 import sys
 sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf8', buffering=1)
 
-@udf("string")
-def str_type(string):
+
+emptyWordList = ["", "no data", "n/a", "null"
+
+def str_type3(string, count):
     if string is None:
-        return None
+        return ('None', (None, count))
     try:
-        long(string)
         if '.' not in str(string):
-            return 'INTEGER (LONG)'
+            return ('INTEGER (LONG)', (long(string), count))
     except:
         string
     try:
-        float(string)
-        return 'REAL'
+        return ('REAL', (float(string), count))
     except:
         string
     try:
         for fmt in ["%Y-%m-%d", "%d-%m-%Y", "%Y/%m/%d", "%m/%d/%Y", "%Y%m%d", "%m%d%Y"]:
             try:
                 datetime.datetime.strptime(string, fmt).date()
-                return 'DATE/TIME'
+                return ('DATE/TIME', (str(string), count))
             except:
                 continue
     except:
         string
-    return 'TEXT'
-
-
-
-@udf("int")
-def transfer_to_int(data):
-    try:
-        result = long(data)
-        return result
-    except:
-        return None
-
-
-@udf("double")
-def transfer_to_double(data):
-    try:
-        result = float(data)
-        return result
-    except:
-        return None
-
-@udf("string")
-def uniform_date_format(data):
-    try:
-        for fmt in ["%Y-%m-%d", "%d-%m-%Y", "%Y/%m/%d", "%m/%d/%Y", "%Y%m%d", "%m%d%Y"]:
-            try:
-                datetime.datetime.strptime(data, fmt).date()
-                return 'DATE/TIME'
-            except:
-                continue
-    except:
-        return None
-    return None
+    return ('TEXT',(str(string), count))
 
 @udf("int")
 def count_text_length(data):
@@ -141,26 +110,6 @@ if __name__ == "__main__":
             filePath = directory + "/" + name +".tsv.gz"
             fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t', multiLine = True).load(filePath).cache()
             print('creating dataframe for ' + name)
-            # #1 non empty cell
-            # noEmptyDF = fileDF.select([count(when((~col("`"+c+"`").isin(emptyWordsList)) & (~col("`"+c+"`").isNull(), c))).alias(c) for c in fileDF.columns])
-            # #2 empty cell     
-            # emptyDF = fileDF.select([count(when((col("`"+c+"`").isin(emptyWordsList)) | (col("`"+c+"`").isNull(), c))).alias(c) for c in fileDF.columns])
-            #5
-            print('#4 prepare data type info')
-            new_fileDF = fileDF.select([str_type("`"+c+"`").alias(c + 'Type') for c in fileDF.columns] + ["`"+c+"`" for c in fileDF.columns]).cache()
-            Integer_Real_Date_info = new_fileDF.select([F.count(transfer_to_int(F.when(new_fileDF["`"+c+'Type`'] == 'INTEGER (LONG)', new_fileDF["`"+c+"`"]))).alias('int_count_' + c) for c in fileDF.columns] \
-                        + [F.max(transfer_to_int(F.when(new_fileDF["`"+c+'Type`'] == 'INTEGER (LONG)', new_fileDF["`"+c+"`"]))).alias('int_max_' + c) for c in fileDF.columns] \
-                        + [F.min(transfer_to_int(F.when(new_fileDF["`"+c+'Type`'] == 'INTEGER (LONG)', new_fileDF["`"+c+"`"]))).alias('int_min_' + c) for c in fileDF.columns] \
-                        + [F.mean(transfer_to_int(F.when(new_fileDF["`"+c+'Type`'] == 'INTEGER (LONG)', new_fileDF["`"+c+"`"]))).alias('int_mean_' + c) for c in fileDF.columns] \
-                        + [F.stddev(transfer_to_int(F.when(new_fileDF["`"+c+'Type`'] == 'INTEGER (LONG)', new_fileDF["`"+c+"`"]))).alias('int_stddev_' + c) for c in fileDF.columns]\
-                    + [F.count(transfer_to_double(F.when(new_fileDF["`"+c+'Type`'] == 'REAL', new_fileDF["`"+c+"`"]))).alias('double_count_' + c) for c in fileDF.columns]\
-                        + [F.max(transfer_to_double(F.when(new_fileDF["`"+c+'Type`'] == 'REAL', new_fileDF["`"+c+"`"]))).alias('double_max_' + c) for c in fileDF.columns]\
-                        + [F.min(transfer_to_double(F.when(new_fileDF["`"+c+'Type`'] == 'REAL', new_fileDF["`"+c+"`"]))).alias('double_min_' + c) for c in fileDF.columns]\
-                        + [F.mean(transfer_to_double(F.when(new_fileDF["`"+c+'Type`'] == 'REAL', new_fileDF["`"+c+"`"]))).alias('double_mean_' + c) for c in fileDF.columns]\
-                        + [F.stddev(transfer_to_double(F.when(new_fileDF["`"+c+'Type`'] == 'REAL', new_fileDF["`"+c+"`"]))).alias('double_stddev_' + c) for c in fileDF.columns]\
-                    + [F.count(uniform_date_format(F.when(new_fileDF["`"+c+'Type`'] == 'DATE/TIME', new_fileDF["`"+c+"`"]))).alias('date_count_' + c) for c in fileDF.columns]\
-                        + [F.max(uniform_date_format(F.when(new_fileDF["`"+c+'Type`'] == 'DATE/TIME', new_fileDF["`"+c+"`"]))).alias('date_max_' + c) for c in fileDF.columns]\
-                        + [F.min(uniform_date_format(F.when(new_fileDF["`"+c+'Type`'] == 'DATE/TIME', new_fileDF["`"+c+"`"]))).alias('date_min_' + c) for c in fileDF.columns]).first()
             # ## add to output json
             outputDicts["columns"] = []
             colCnt = 0
@@ -172,16 +121,17 @@ if __name__ == "__main__":
                 pdict = {
                     "column_name": c
                 }
-                #3
+                #1
                 print('#1 number_distinct_values')
                 disRDD = fileDF.select("`"+c+"`").rdd
                 rddCol = disRDD.map(lambda x: (x[c], 1))
                 disRDD = rddCol.reduceByKey(lambda x,y:(x+y))
+                disRDD.cache()
                 disCol = disRDD.collect()
                 disCell = len(disCol)
                 pdict["number_distinct_values"] = int(disCell)
                 print('#1 finished')
-                #1
+                #2
                 print('#2 number_non_empty_cells & number_non_empty_cells')
                 NEmptyRDD = disRDD.map(lambda x: checkEmpty(x)).reduceByKey(lambda x,y:(x+y))
                 NEList = NEmptyRDD.collect()
@@ -191,13 +141,7 @@ if __name__ == "__main__":
                     pdict['number_empty_cells'] = 0
                 if 'number_non_empty_cells' not in pdict:
                     pdict['number_non_empty_cells'] = 0
-                print('#2 finished')   
-                # pdict["number_non_empty_cells"] = int(nonEmptyCells)
-                # print('#1 finished')
-                # print('#2 number_empty_cells')
-                # emptyCells = emptyDF.select("`"+c+"`").first()[c]
-                # pdict["number_empty_cells"] = int(emptyCells)
-                # print('#2 finished')
+                print('#2 finished')
                 #4
                 print('#3 frequent_values')
                 topRDD = disRDD.sortBy(lambda x: -x[1]).take(5)
@@ -208,43 +152,80 @@ if __name__ == "__main__":
                 print('#3 finished')
                 #5
                 print('#4 data types')
-                data_types_List = []
-                if Integer_Real_Date_info['int_count_' + c] != 0:
-                    int_data_type = {}
-                    int_data_type['type'] = 'INTEGER (LONG)'
-                    int_data_type['count'] = str(Integer_Real_Date_info['int_count_'+ c])
-                    int_data_type['max_value'] = str(Integer_Real_Date_info['int_max_'+ c])
-                    int_data_type['mean_value'] = str(Integer_Real_Date_info['int_mean_'+ c])
-                    int_data_type['stddev_value'] = str(Integer_Real_Date_info['int_stddev_' + c])
-                    data_types_List.append(int_data_type)
-                if Integer_Real_Date_info['double_count_' + c] != 0:
-                    double_data_type = {}
-                    double_data_type['type'] = 'REAL'
-                    double_data_type['count'] = str(Integer_Real_Date_info['double_count_'+ c])
-                    double_data_type['max_value'] = str(Integer_Real_Date_info['double_max_'+ c])
-                    double_data_type['mean_value'] = str(Integer_Real_Date_info['double_mean_'+ c])
-                    double_data_type['stddev_value'] = str(Integer_Real_Date_info['double_stddev_' + c])
-                    data_types_List.append(double_data_type)
-                if Integer_Real_Date_info['date_count_' + c] != 0:
-                    date_data_type = {}
-                    date_data_type['type'] = 'DATE/TIME'
-                    date_data_type['count'] = str(Integer_Real_Date_info['date_count_'+ c])
-                    date_data_type['max_value'] = str(Integer_Real_Date_info['date_max_' + c])
-                    date_data_type['min_value'] = str(Integer_Real_Date_info['date_min_' + c])
-                    data_types_List.append(date_data_type)
-                if  new_fileDF.filter(new_fileDF['`'+c + 'Type`'] == 'TEXT').count() != 0:
-                    shortest_values = new_fileDF.sort(count_text_length('`'+c+'`').asc()).select("`"+c+"`").limit(5).collect()
-                    shortest_values = [shortest_values[i][0] for i in range(len(shortest_values))]
-                    longest_values = new_fileDF.sort(count_text_length('`'+c+'`').desc()).select("`"+c+"`").limit(5).collect()
-                    longest_values = [longest_values[i][0] for i in range(len(longest_values))]
-                    average_length = new_fileDF.select(F.mean(count_text_length('`'+c+'`'))).first()[0]
-                    text_data_type = {}
-                    text_data_type['type'] = 'TEXT'
-                    text_data_type['shortest_values'] = str(shortest_values)
-                    text_data_type['longest_values'] = str(longest_values)
-                    text_data_type['average_length'] = str(average_length)
-                    data_types_List.append(text_data_type)
-                pdict['data_types'] = data_types_List
+
+                new_disRDD = disRDD.map(lambda x: str_type3(x[0], x[1]))
+                new_disRDD.cache()
+                columnOfInteger = new_disRDD.filter(lambda x: x[0] == 'INTEGER (LONG)')
+                columnOfInteger.cache()
+                columnOfReal = new_disRDD.filter(lambda x: x[0] == 'REAL')
+                columnOfReal.cache()
+                columnOfDate = new_disRDD.filter(lambda x: x[0] == 'DATE/TIME')
+                columnOfDate.cache()
+                columnOfText = new_disRDD.filter(lambda x: x[0] == 'TEXT')
+                columnOfText.cache()
+                numOfInteger = columnOfInteger.count()
+                numOfReal = columnOfReal.count()
+                numOfDate = columnOfDate.count()
+                numOfText = columnOfText.count()
+                data_types = []
+                print(time.asctime(time.localtime(time.time())), '*' * 40, 'Integer start')
+                if numOfInteger > 0:
+                    integerType = {}
+                    integerType['type'] = 'INTEGER (LONG)'
+                    integerType['count'] = columnOfInteger.map(lambda x: x[1][1]).sum()
+                    columnOfIntegerValue = columnOfInteger.map(lambda x: x[1][0])
+                    integerType['max_value'] = columnOfIntegerValue.max()
+                    integerType['min_value'] = columnOfIntegerValue.min()
+                    sumOfTwo = (lambda x, y: (x[0] + y[0] * y[1], x[1] + y[1]))
+                    countOfsum = (lambda x, y: (x[0] + y[0], x[1] + y[1]))
+                    columnOfIntegerValueAndCount = columnOfInteger.map(lambda x: x[1])
+                    sumAndCount = columnOfIntegerValueAndCount.aggregate((0, 0), sumOfTwo, countOfsum)
+                    integerType['mean'] = float(sumAndCount[0] / sumAndCount[1])
+                    sumOfTwoSquare = (lambda x, y: (
+                    x[0] + (y[0] - integerType['mean']) * (y[0] - integerType['mean']) * y[1], x[1] + y[1]))
+                    countOfSumSquare = (lambda x, y: (x[0] + y[0], x[1] + y[1]))
+                    squareAndCount = columnOfIntegerValueAndCount.aggregate((0, 0), sumOfTwoSquare, countOfSumSquare)
+                    integerType['stddev'] = math.sqrt(squareAndCount[0] / squareAndCount[1])
+                    data_types.append(integerType)
+                print(time.asctime(time.localtime(time.time())), '*' * 40, 'real start')
+                if numOfReal > 0:
+                    realType = {}
+                    realType['count'] = columnOfReal.map(lambda x: x[1][1]).sum()
+                    columnOfRealValue = columnOfReal.map(lambda x: x[1][0])
+                    realType['max_value'] = columnOfRealValue.max()
+                    realType['min_value'] = columnOfRealValue.min()
+                    sumOfTwo = (lambda x, y: (x[0] + y[0] * y[1], x[1] + 1))
+                    countOfsum = (lambda x, y: (x[0] + y[0], x[1] + y[1]))
+                    columnOfRealValueAndCount = columnOfReal.map(lambda x: x[1])
+                    sumAndCount = columnOfRealValueAndCount.aggregate((0, 0), sumOfTwo, countOfsum)
+                    realType['mean'] = float(sumAndCount[0] / sumAndCount[1])
+                    sumOfTwoSquare = (lambda x, y: (x[0] + (y[0] - realType['mean']) ** 2 * y[1], x[1] + 1))
+                    countOfSumSquare = (lambda x, y: (x[0] + y[0], x[1] + y[1]))
+                    squareAndCount = columnOfRealValueAndCount.aggregate((0, 0), sumOfTwoSquare, countOfSumSquare)
+                    realType['stddev'] = math.sqrt(squareAndCount[0] / squareAndCount[1])
+                    data_types.append(realType)
+                print(time.asctime(time.localtime(time.time())), '*' * 40, 'date start')
+                if numOfDate > 0:
+                    dateType = {}
+                    dateType['type'] = 'DATE/TIME'
+                    dateType['count'] = columnOfDate.map(lambda x: x[1][1]).sum()
+                    columnOfDateValue = columnOfDate.map(lambda x: x[1][0])
+                    dateType['max_value'] = columnOfDateValue.max()
+                    dateType['min_value'] = columnOfDateValue.min()
+                    data_types.append(dateType)
+                print(time.asctime(time.localtime(time.time())), '*' * 40, 'text start')
+                if numOfText > 0:
+                    textType = {}
+                    textType['type'] = 'TEXT'
+                    textType['count'] = columnOfText.map(lambda x: x[1][1]).sum()
+                    columnOfTextValue = columnOfText.map(lambda x: x[1]).flatMap(lambda x: [x[0] for i in range(x[1])])
+                    textType['shortest_values'] = columnOfTextValue.sortBy(lambda x: len(x), True).take(5)
+                    textType['longest_values'] = columnOfTextValue.sortBy(lambda x: len(x), False).take(5)
+                    textType['average_length'] = columnOfTextValue.map(lambda x: len(x)).mean()
+                    data_types.append(textType)
+                print(data_types)
+
+                pdict['data_types'] = data_types
                 print('#4 finished')    
                 #add to out dicts
                 outputDicts["columns"].append(pdict)
