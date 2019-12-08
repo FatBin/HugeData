@@ -1,7 +1,7 @@
-90 borough
+90 area_of_study
 91 building_classification 
-92 neighborhood
-93 other subject_in_school
+92 neighborhood 
+93 subject_in_school "a lot of -"
 94 color
 95 street_name
 96 school_level
@@ -16,18 +16,18 @@
 105 color
 106 lat_lon_cord
 107 person_name
-108 borough "combined with city name, originally called city, mostly borough"
+108 borough,city "combined with city name, originally called city, mostly borough"
 109 other "should be school_names, but all the cells are unspecified"
 110 area_of_study
 111 city_agency
-112 borough "combined with city name and neighborhood, originally called city, mostly borough"
+112 borough,city "combined with city name and neighborhood, originally called city, mostly borough"
 113 subject_in_school
 114 area_of_study
 115 person_name first_name
-116 car_make "to classify"
+116 other "TOP VEHICLE MODELS"
 117 school_name
-118 street_name "city properties plus streetname, originally called neighborhood"
-119 other "should be vehicle_type, but most are null"
+118 street_name,neighborhood,building_classification "city properties plus streetname, originally called neighborhood"
+119 vehicle_type "most are null"
 120 business_name
 121 park_playground "mostly unspecified, few valid data"
 122 phone_number
@@ -42,20 +42,20 @@
 131 color
 132 lat_lon_cord
 133 person_name "last name"
-134 borough "combined with city name and neighborhood, originally called city, mostly borough"
+134 borough,city,neighborhood "combined with city name and neighborhood, originally called city, mostly borough"
 135 vehicle_type
 136 borough
-137 borough "combined with city name and neighborhood, originally called city, mostly borough"
-138 neighborhood "STATEN ISLAND CONDOMINIUM PROPERTY Neighborhood"
+137 borough,city,neighborhood "combined with city name and neighborhood, originally called city, mostly borough"
+138 neighborhood,building_classification  "STATEN ISLAND CONDOMINIUM PROPERTY Neighborhood"
 139 subject_in_school
 140 other "house number"
 141 school_level
 142 website
-143 neighborhood "should check"
+143 neighborhood
 144 school_level "with 'school' in the end"
-145 other "neighborhood with property number"
-146 car_make "Truck Make for specific"
-147 other "no idea"
+145 neighborhood
+146 other "car_make, Truck Make for specific"
+147 other "CANDMI, one character one row"
 148 zip_code
 149 person_name "last name"
 150 website
@@ -66,7 +66,7 @@
 155 address
 156 subject_in_school
 157 street_name
-158 other "neighborhood with property number"
+158 neighborhood
 159 person_name "last name"
 160 subject_in_school
 161 address
@@ -76,7 +76,7 @@
 165 other "Vehicle Body Type"
 166 zip_code
 167 city_agency abbreviation
-168 borough "combined with city name and neighborhood, originally called city, mostly borough"
+168 borough,city,neighborhood "combined with city name and neighborhood, originally called city, mostly borough"
 169 other "MI"
 170 park_playground
 171 other "vehicle body type"
@@ -84,7 +84,7 @@
 173 lat_lon_cord
 174 street_name
 175 street_name
-176 other "mostly null"
+176 neighborhood
 177 person_name "first name"
 178 street_name
 179 street_name

@@ -53,12 +53,14 @@ webSitePat = r'^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+(
 boroughList = ['k', 'm', 'q', 'r', 'x', 'new york', 'brooklyn', 'manhattan', 'queens', 'bronx', 'the bronx', 'staten island', 'clifto', \
     'baldwin', 'astoria','mt.kisco', 'charlotte', 'bklyn', 'dobbs ferry', 'staten island', 'elmhurst', 'maspeth', 'nyc']
 #car make
-carMakeList = ['peter', 'inter', 'chevr', 'nissa', 'workh', 'acura', 'alfa romeo', 'aston martin', 'audi', 'bentley', 'bmw', 'bugatti', 'buick', 'cadillac', 'chevrolet', \
+carMakeList = ['peter', 'inter', 'chevr', 'nissa', 'workh', 'acura', 'alfa romeo', 'aston martin', 'audi', 'bentley', \
+               'bmw', 'bugatti', 'buick', 'cadillac', 'chevrolet',  'datsun', 'olds', 'chev', 'chrysl', 'mercur'\
     'chrysler', 'citroen', 'dodge', 'ferrari', 'fiat', 'ford', 'geely', 'general motors', 'gmc', 'honda', 'hyundai', \
         'infiniti', 'jaguar', 'jeep', 'kia', 'koenigsegg', 'lamborghini', 'land rover', 'lexus', 'masrati', \
             'mazda', 'mclaren', 'mercedes benz', 'mercedes-benz', 'mini', 'mitsubishi', 'nissan', 'pagani', 'peugeot', 'porsche', \
-                'ram', 'renault', 'rolls royce', 'saab', 'subaru', 'suzuki', 'tata motors', 'tesla', \
-                    'toyota', 'volkswagen', 'volvo']
+                'ram', 'renault', 'rolls royce', 'saab', 'subaru', 'suzuki', 'tata motors', 'tesla', 'chevy', 'chev',\
+                    'toyota', 'volkswagen', 'volvo', 'cadi', 'unk', 'pont', 'hobbs', 'pontia', 'linc', 'plym', 'lincol',\
+              'v.w', 'vw', 'gm', 'volks']
 #color 
 colorList = ['gry', 'gr', 'blk',  'orang', 'yellow', 'blue', 'red', 'green', 'black', 'brown', 'azure', 'ivory', 'teal', \
     'silver', 'purple', 'navy blue', 'navy', 'pea green', 'gray', 'orange', 'maroon', 'charcoal', 'aquamarine', 'coral', 'aquamarine', 'coral', \
