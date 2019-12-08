@@ -87,7 +87,6 @@ latLonCoordPat = r"^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-
 latLonCoordPat2 = r"^(([1-9]\d?)|(1[0-7]\d))(\.\d{3,7})|180|0(\.\d{1,6})?"
 #address
 addressPat = r"^\d+?[A-Za-z]*\s\w*\s?\w+?\s\w{2}\w*\s*\w*"
-#neighborhood
 
 #school level
 schoollevel_list = ['k-1', 'k-2', 'k-3', 'k-4','k-5','k-6','k-7','k-8','k-9','k-10','k-11','k-12',\
@@ -99,6 +98,8 @@ area_of_study_list = ['business', 'health professions', 'law & government', 'sci
                       'environmental science', 'communications', 'teaching', 'jrotc', 'zoned', 'animal science']
 #subject_in_school
 subject_in_school_list = ['english', 'math', 'science', 'social studies']
+#colledge name list
+colledgeList = ['university', 'college']
 
 #building_classification
 buildingClassificationPat = r"[a-zA-Z][0-9]{1,2}-(walk-up|elevator|condops)"
@@ -107,19 +108,22 @@ buildingClassificationPat = r"[a-zA-Z][0-9]{1,2}-(walk-up|elevator|condops)"
 cityDict = {}
 #city agency list
 agencyDict = {}
+#neighborhood List
+neighborhoodDict = {}
 
 def semanticMap(x):
     mat = str(x[0])
     lowerMat = mat.lower()
-    #neighborhood
-    if lowerMat in neighborhoodList:
-        return ('neighborhood', x[1])
     #city
     if lowerMat in cityDict:
         return ('city', x[1])
     #city agency
     if lowerMat in agencyDict:
         return ('city_agency', x[1])
+    #college name
+    for c in colledgeList:
+        if lowerMat.find(c) >= 0:
+            return ('college_name', x[1])
     #type of location
     if lowerMat in typeLocationList:
         return ('location_type', x[1])
@@ -133,6 +137,9 @@ def semanticMap(x):
     for business in businessList:
         if lowerMat.find(business) >= 0:
             return ('business_name', x[1])
+    #area_of_study_list
+    if lowerMat in area_of_study_list:
+        return ('area_of_study', x[1])
     #zip code
     if re.match(zipPat, mat):
         return ('zip_code', x[1])
@@ -163,11 +170,11 @@ def semanticMap(x):
         if re.match(pat, mat):
             return ('phone_number', x[1])    
     #color 
-    # if lowerMat in colorList:
-    #     return ('Color', x[1])
-    for color in colorList:
-        if cosSim(color, lowerMat ) >= 0.8:
-            return ('color', x[1])
+    if lowerMat in colorList:
+        return ('color', x[1])
+    # for color in colorList:
+    #     if cosSim(color, lowerMat ) >= 0.8:
+    #         return ('color', x[1])
     #borough
     # if  lowerMat in boroughList:
     #     return ('Borough', x[1])
@@ -180,7 +187,15 @@ def semanticMap(x):
     for carMake in carMakeList:
         if cosSim(carMake, lowerMat) >= 0.8:
             return ('car_make', x[1])
-   
+    for subj in subject_in_school_list:
+        if cosSim(subj, lowerMat) >= 0.8:
+            return ('subject_in_school', x[1])
+    #neighborhood
+    if lowerMat in neighborhoodDict:
+        return ('neighborhood', x[1])
+    for nei in neighborhoodDict.keys():
+        if (cosSim(lowerMat, nei)) >= 0.8:
+            return ('neighborhood', x[1])
     if re.match(personNamePat, mat):
         return ('person_name', x[1])
     return ('other', x[1])
@@ -256,7 +271,7 @@ if __name__ == "__main__":
     with open('./citylist.txt', 'r', encoding='UTF-8') as f:
         cityNames = f.readlines()
         for cityName in cityNames:
-            cityDict[cityName.replace("\n","")] = 1
+            cityDict[cityName.replace("\n","").strip()] = 1
     print("Loaded {} city names".format(len(cityDict.keys())))
     ### city agencies list
     cityAgencyDir = "./cityagencylist.txt"
@@ -268,6 +283,12 @@ if __name__ == "__main__":
                 for a in agencyL:
                     agencyDict[a.strip().replace(")","").lower()] = 1
     print("Loaded {} city agency names(Abbreviations and full names)".format(len(agencyDict.keys())))
+    ### neighborhood list
+    with open('./neighborhood.txt', 'r', encoding='UTF-8') as f:
+        neighborhoodList = f.readlines()
+        for neighborhood in neighborhoodList:
+            neighborhoodDict[neighborhood.replace("\n","").strip()] = 1
+    print("Loaded {} neighborhood names".format(len(neighborhoodDict.keys())))
     spark = SparkSession \
     .builder \
     .appName("Python Spark SQL Project") \
@@ -275,7 +296,7 @@ if __name__ == "__main__":
     .getOrCreate()
     
     fNum = len(fileLst)
-    for i in range(0, 90):
+    for i in range(0, fNum):
         try:
             fileInfo = fileLst[i]
             fStr = fileInfo.split(".")
