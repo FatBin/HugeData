@@ -13,6 +13,9 @@ import sys
 sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf8', buffering=1)
 
 rowsNum = 0
+acturalLabel = {}
+correctPred = {}
+predictLabel = {}
 
 def editDis(str1, str2):
     len_str1 = len(str1) + 1
@@ -234,25 +237,29 @@ def outErrorList(i):
                 line = str(i)+"\n"
                 f.write(line)
 
+# this is the percision of each column
 def outPerList(i, p):
     plst = []
-    if os.path.isfile("./percision.txt"):
-        with open("./percision.txt", 'r', encoding='UTF-8') as f:
+    if os.path.isfile("./col_percision.txt"):
+        with open("./col_percision.txt", 'r', encoding='UTF-8') as f:
             pStr = f.readlines()
             for line in pStr:
                 line = line = line.split(" ")[0]
                 plst.append(line)
-        with open("./percision.txt", 'a', encoding='UTF-8') as f:
+        with open("./col_percision.txt", 'a', encoding='UTF-8') as f:
             if str(i) not in plst:
                 line = str(i) + " " + str(p)+"\n"
                 f.write(line)
     else:
-        with open("./percision.txt", 'w', encoding='UTF-8') as f:
+        with open("./col_percision.txt", 'w', encoding='UTF-8') as f:
             for j in range(len(perList)):
                 line = str(perList[j][0]) + " " + str(perList[j][1])+"\n"
                 f.write(line)
-    print('finised output percision')
-
+    print('finised output percision for one column')
+# output predict info
+def outDict(fp, dct):
+    with open(fp, 'w') as f:
+        json.dump(dct,f, sort_keys= True, indent = 4, separators=(',', ': '))
 if __name__ == "__main__":
     directory = "/user/hm74/NYCOpenData"
     outDir = "./task2out"
@@ -265,7 +272,14 @@ if __name__ == "__main__":
         labels = f.readlines()
         for label in labels:
             label = label.replace("\n","")
-            labelList.append(label.split(" ")[1].split(","))
+            llst = label.split(" ")[1].split(",")
+            labelList.append(llst)
+            for l in llst:
+                if l not in acturalLabel:
+                    acturalLabel[l] = 1
+                else:
+                    acturalLabel[l] += 1
+        outDict("./actural_label.json", acturalLabel)
     ### cluster
     with open('./cluster1.txt', 'r', encoding='UTF-8') as f:
         contentStr = f.read()
@@ -357,6 +371,14 @@ if __name__ == "__main__":
                 neCnt += int(sem[1])
                 if sem[0] in labelList[i]:
                     correctCnt += sem[1]
+                    if sem[0] not in correctPred:
+                        correctPred[sem[0]] = 1
+                    else:
+                        correctPred[sem[0]] += 1
+                    if sem[0] not in predictLabel:
+                        predictLabel[sem[0]] = 1
+                    else:
+                        predictLabel[sem[0]] += 1
             with open(outDir+"/"+fileName+"_semantic.json", 'w', encoding='UTF-8') as fw:
                 json.dump(outputDicts,fw)
             print('Finished output file: {}, the index is: {}'.format(fileName, i))
@@ -366,3 +388,22 @@ if __name__ == "__main__":
         except Exception as e:
             exceptList.append(i)
             outErrorList(i)
+    outDict("./correct_predict.json", correctPred)
+    outDict("./predict_label.json", predictLabel)
+    #### output percision and recall
+    allTypes = 0
+    for label in acturalLabel.keys():
+        allTypes += acturalLabel[label]
+    finalPerRecall = {}
+    for label in acturalLabel.keys():
+        if label in correctPred:
+            finalPerRecall[label] = {
+                'percision': float(correctPred[label])/predictLabel[label],
+                'recall': float(correctPred[label])/acturalLabel[label]
+            }
+        else:
+            finalPerRecall[label] = {
+                'percsion': 0.0,
+                'recall': 0.0
+            }
+    outDict('final_percision_recall.json', finalPerRecall)
