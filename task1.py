@@ -86,7 +86,7 @@ def count_text_length(data):
     except:
         return None
 
-emptyWordList = ["", "no data", "n/a", "null"]
+emptyWordList = ["", "-", "no data", "n/a", "null", "na", "unspecified"]
 
 def checkEmpty(x):
     if not x[0]:
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     .getOrCreate()
     
     fNum = len(fileNames)
-    for i in range(811, len(fileNames)):
+    for i in range(869, len(fileNames)):
         try:
             name = fileNames[i]
             outputDicts = {}
