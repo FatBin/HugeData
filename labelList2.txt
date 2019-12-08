@@ -1,6 +1,6 @@
 90 area_of_study
 91 building_classification 
-92 neighborhood
+92 neighborhood 
 93 subject_in_school "a lot of -"
 94 color
 95 street_name
@@ -24,7 +24,7 @@
 113 subject_in_school
 114 area_of_study
 115 person_name first_name
-116 car_make "to classify"
+116 other "TOP VEHICLE MODELS"
 117 school_name
 118 street_name,neighborhood,building_classification "city properties plus streetname, originally called neighborhood"
 119 vehicle_type "most are null"
