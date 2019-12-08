@@ -131,7 +131,7 @@ if __name__ == "__main__":
     .getOrCreate()
     
     fNum = len(fileNames)
-    for i in range(580, len(fileNames)):
+    for i in range(811, len(fileNames)):
         try:
             name = fileNames[i]
             outputDicts = {}
@@ -139,7 +139,7 @@ if __name__ == "__main__":
             print('current step {}/{}'.format(i+1, fNum))
             outputDicts["dataset_name"] = name
             filePath = directory + "/" + name +".tsv.gz"
-            fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t').load(filePath).cache()
+            fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t', multiLine = True).load(filePath).cache()
             print('creating dataframe for ' + name)
             # #1 non empty cell
             # noEmptyDF = fileDF.select([count(when((~col("`"+c+"`").isin(emptyWordsList)) & (~col("`"+c+"`").isNull(), c))).alias(c) for c in fileDF.columns])
