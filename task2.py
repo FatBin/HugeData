@@ -50,7 +50,7 @@ phonePatList = [r'^[2-9]\d{2}-\d{3}-\d{4}$', r'((\(\d{3}\) ?)|(\d{3}-))?\d{3}-\d
 #website
 webSitePat = r'^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$'
 #brouugh
-boroughList = ['new york', 'brooklyn', 'manhattan', 'queens', 'bronx', 'the bronx', 'staten island', 'clifto', \
+boroughList = ['k', 'm', 'q', 'r', 'x', 'new york', 'brooklyn', 'manhattan', 'queens', 'bronx', 'the bronx', 'staten island', 'clifto', \
     'baldwin', 'astoria','mt.kisco', 'charlotte', 'bklyn', 'dobbs ferry', 'staten island', 'elmhurst', 'maspeth', 'nyc']
 #car make
 carMakeList = ['peter', 'inter', 'chevr', 'nissa', 'workh', 'acura', 'alfa romeo', 'aston martin', 'audi', 'bentley', 'bmw', 'bugatti', 'buick', 'cadillac', 'chevrolet', \
@@ -98,6 +98,12 @@ area_of_study_list = ['business', 'health professions', 'law & government', 'sci
 #subject_in_school
 subject_in_school_list = ['english', 'math', 'science', 'social studies']
 
+#building_classification
+buildingClassificationPat = r"[a-zA-Z][0-9]{1,2}-(walk-up|elevator|condops)"
+
+#neighborhood
+neighborhoodList = ['rosebank', 'new springville', 'grant city', 'sunnyside', 'grymes hill']
+
 #city names dict, which will be loaded in main function
 cityDict = {}
 #city agency list
@@ -106,10 +112,9 @@ agencyDict = {}
 def semanticMap(x):
     mat = str(x[0])
     lowerMat = mat.lower()
-    #business name
-    for business in businessList:
-        if lowerMat.find(business) >= 0:
-            return ('business_name', x[1])
+    #neighborhood
+    if lowerMat in neighborhoodList:
+        return ('neighborhood', x[1])
     #city
     if lowerMat in cityDict:
         return ('city', x[1])
@@ -125,9 +130,16 @@ def semanticMap(x):
     #school level
     if lowerMat in schoollevel_list:
         return ('school_level', x[1])
+    #business name
+    for business in businessList:
+        if lowerMat.find(business) >= 0:
+            return ('business_name', x[1])
     #zip code
     if re.match(zipPat, mat):
         return ('zip_code', x[1])
+    #buildingClassification
+    if re.match(buildingClassificationPat, lowerMat):
+        return ('building_classification', x[1])
     #website
     if re.match(webSitePat, lowerMat):
         return ('website', x[1])
@@ -174,7 +186,7 @@ def semanticMap(x):
         return ('person_name', x[1])
     return ('other', x[1])
 
-emptyWordList = ["", "no data", "n/a", "null"]
+emptyWordList = ["", "-", "no data", "n/a", "null", "na", "unspecified"]
 perList = []
 exceptList = []
 
@@ -235,7 +247,7 @@ if __name__ == "__main__":
     with open('./labellist.txt', 'r', encoding='UTF-8') as f:
         labels = f.readlines()
         for label in labels:
-            labelList.append(label.split(" ")[1].replace("\n",""))
+            labelList.append(label.split(" ")[1].split(",").replace("\n",""))
     ### cluster
     with open('./cluster1.txt', 'r', encoding='UTF-8') as f:
         contentStr = f.read()
@@ -280,7 +292,7 @@ if __name__ == "__main__":
             outputDicts['column_name'] = colName
             outputDicts['semantic_types'] = []
             filePath = directory + "/" + fileName +".tsv.gz"
-            fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t', encoding = 'UTF-8').load(filePath)
+            fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t', encoding = 'UTF-8', multiLine = True).load(filePath)
             columns = fileDF.columns
             if colName not in columns:
                 if colName.find('CORE_SUBJECT') >= 0:
@@ -301,7 +313,8 @@ if __name__ == "__main__":
                             colName = c
                             print('Renamed selected column name')
                             break
-            disRDD = fileDF.select(colName).rdd
+            disRDD = fileDF.select(colName).rdd.filter( \
+                lambda x: (x[colName] is not None and str(x[colName]).lower() not in emptyWordList)).cache()
             print('Finished selecting column from dataframe: {}'.format(fileName))
             rddCol = disRDD.map(lambda x: (x[colName], 1))
             disRDD = rddCol.reduceByKey(lambda x,y:(x+y))
@@ -316,8 +329,8 @@ if __name__ == "__main__":
                     'label': sem[0],
                     'count': sem[1]
                 })
-                if sem[0] == labelList[i]:
-                    correctCnt = sem[1]
+                if sem[0] in labelList[i]:
+                    correctCnt += sem[0]
             with open(outDir+"/"+fileName+"_semantic.json", 'w', encoding='UTF-8') as fw:
                 json.dump(outputDicts,fw)
             print('Finished output file: {}, the index is: {}'.format(fileName, i))

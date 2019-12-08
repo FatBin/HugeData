@@ -2,17 +2,17 @@
 1 street_name
 2 borough
 3 website
-4 other borough
-5 phone_number
-6 address
+4 borough
+5 building_classification
+6 neighborhood
 7 address
 8 color
 9 business_name
 10 other
-11 other borough
+11 borough
 12 person_name
 13 address
-14 other date
+14 ocity
 15 city_agency
 16 person_name
 17 color
@@ -27,12 +27,12 @@
 26 person_name
 27 lat_lon_cord
 28 color
-29 other all null
-30 other
+29 person_name
+30 other Vehicle_Body_Type
 31 city_agency
 32 street_name
 33 subject_in_school
-34 area_of_study interest
+34 area_of_study,subject_in_school,other interest
 35 other
 36 zip_code
 37 city_agency
@@ -40,7 +40,7 @@
 39 school_name
 40 address
 41 adress
-42 other
+42 other Vehicle_Body_Type
 43 city
 44 car_make
 45 school_name
@@ -51,10 +51,10 @@
 50 street_name
 51 street_name
 52 person_name
-53 other "should be building class, but so many empty cells"
+53 building_classification
 54 city_agency
-55 other
-56 other "should be building class, but they are years here"
+55 other CANDMI
+56 building_classification
 57 school_name
 58 car_make
 59 phone_number
@@ -64,7 +64,7 @@
 63 subject_in_school
 64 phone_number
 65 school_level
-66 other
+66 other DBA
 67 lat_lon_cord
 68 adress
 69 other "should be building class, but so many empty cells"
@@ -72,8 +72,8 @@
 71 website
 72 address
 73 subject_in_school
-74 area_of_study interest
-75 other
+74 area_of_study,subject_in_school,other interest
+75 other Vehicle_Body_Type
 76 city_agency
 77 borough
 78 vehicle_type
@@ -85,6 +85,6 @@
 84 car_make
 85 car_make
 86 school_level
-87 other
+87 other CANDMI
 88 school_level
 89 borough
