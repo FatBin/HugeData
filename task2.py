@@ -104,7 +104,19 @@ subject_in_school_list = ['english', 'math', 'science', 'social studies']
 buildingClassificationPat = r"[a-zA-Z][0-9]{1,2}-(walk-up|elevator|condops)"
 
 #neighborhood
-neighborhoodList = ['rosebank', 'new springville', 'grant city', 'sunnyside', 'grymes hill']
+neighborhoodList = ['rosebank', 'new springville', 'grant city', 'sunnyside', 'grymes hill', 'belmont', 'fordham ', 'fordham heights', \
+                    'fordham manor', 'jerome park', 'kingsbridge ', 'kingsbridge heights', 'van cortlandt village', 'marble hill', \
+                    'norwood', 'riverdale ', 'central riverdale', 'fieldston', 'hudson hill', 'north riverdale', 'spuyten duyvil', \
+                    'university heights', 'woodlawn', 'bathgate', 'claremont', 'concourse', 'east tremont', 'highbridge', 'hunts point', \
+                    'longwood ', 'foxhurst', 'woodstock', 'melrose', 'morris heights', 'morrisania ', 'crotona park east', 'mott haven ', \
+                    'port morris', 'the hub', 'tremont ', 'fairmount', 'mount eden', 'mount hope', 'west farms', 'allerton ', 'bronxwood', \
+                    'laconia', 'baychester', 'bronxdale', 'city island', 'co-op city', 'eastchester', 'edenwald', 'pelham gardens', \
+                    'pelham parkway', 'wakefield ', 'washingtonville', 'williamsbridge ', 'olinville', 'bronx river', 'bruckner', \
+                    'clason point', 'country club', 'harding park', 'morris park ', 'indian village', 'parkchester', 'park versailles', \
+                    'van nest', 'westchester heights', 'pelham bay', 'soundview', 'schuylerville', 'throggs neck', 'edgewater park', \
+                    'unionport ', 'castle hill', 'westchester square', 'the pelham islands', 'the blauzes', 'chimney sweeps islands', \
+                    'city island', 'hart island', 'high island', 'hunter island', 'rat island', 'twin island', 'north brother island', \
+                    'south brother island', 'rikers island']
 
 #city names dict, which will be loaded in main function
 cityDict = {}
