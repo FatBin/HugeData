@@ -51,7 +51,7 @@
 140 other "house number"
 141 school_level
 142 website
-143 neighborhood "should check"
+143 neighborhood
 144 school_level "with 'school' in the end"
 145 neighborhood
 146 other "car_make, Truck Make for specific"
