@@ -87,7 +87,8 @@ latLonCoordPat = r"^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-
 latLonCoordPat2 = r"^(([1-9]\d?)|(1[0-7]\d))(\.\d{3,7})|180|0(\.\d{1,6})?"
 #address
 addressPat = r"^\d+?[A-Za-z]*\s\w*\s?\w+?\s\w{2}\w*\s*\w*"
-
+#school name
+school_pat = r"([a-z0-9]{1,10} ){1,5}(high school|middle school|studies|charter school|elementary school|(school|academy){1} (of|for){1} ([a-z0-9]{1,10}){1,5})$"
 #school level
 schoollevel_list = ['k-1', 'k-2', 'k-3', 'k-4','k-5','k-6','k-7','k-8','k-9','k-10','k-11','k-12',\
     'elementary', 'elementary school', 'primary', 'primary school', 'high school', 'middle', 'middle school', 'high school transfer', 'yabc', \
@@ -140,6 +141,12 @@ def semanticMap(x):
     #area_of_study_list
     if lowerMat in area_of_study_list:
         return ('area_of_study', x[1])
+    #color 
+    if lowerMat in colorList:
+        return ('color', x[1])
+    # for color in colorList:
+    #     if cosSim(color, lowerMat ) >= 0.8:
+    #         return ('color', x[1])
     #zip code
     if re.match(zipPat, mat):
         return ('zip_code', x[1])
@@ -156,25 +163,22 @@ def semanticMap(x):
     llMat = lowerMat.replace("+","").replace("-","")
     if re.match(latLonCoordPat2, llMat):
         return ('lat_lon_cord', x[1])
-    #parks/playgrounds
-    if re.match(ppPat, mat):
-        return ('park_playground', x[1])  
-    #address
-    if re.match(addressPat, lowerMat):
-        return ('address', x[1])  
-    #street name
-    if re.match(streetPat, lowerMat):
-        return ('street_name', x[1])
     #phone number 
     for pat in phonePatList:
         if re.match(pat, mat):
-            return ('phone_number', x[1])    
-    #color 
-    if lowerMat in colorList:
-        return ('color', x[1])
-    # for color in colorList:
-    #     if cosSim(color, lowerMat ) >= 0.8:
-    #         return ('color', x[1])
+            return ('phone_number', x[1])  
+    #school name
+    if re.match(school_pat, lowerMat):
+        return ('school_name', x[1])     
+    #parks/playgrounds
+    if re.match(ppPat, mat):
+        return ('park_playground', x[1]) 
+    #street name
+    if re.match(streetPat, lowerMat):
+        return ('street_name', x[1])
+    #address
+    if re.match(addressPat, lowerMat):
+        return ('address', x[1]) 
     #borough
     # if  lowerMat in boroughList:
     #     return ('Borough', x[1])
