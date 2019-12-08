@@ -181,7 +181,7 @@ def semanticMap(x):
     for carMake in carMakeList:
         if cosSim(carMake, lowerMat) >= 0.8:
             return ('car_make', x[1])
-    
+   
     if re.match(personNamePat, mat):
         return ('person_name', x[1])
     return ('other', x[1])
@@ -247,7 +247,8 @@ if __name__ == "__main__":
     with open('./labellist.txt', 'r', encoding='UTF-8') as f:
         labels = f.readlines()
         for label in labels:
-            labelList.append(label.split(" ")[1].split(",").replace("\n",""))
+            label = label.replace("\n","")
+            labelList.append(label.split(" ")[1].split(","))
     ### cluster
     with open('./cluster1.txt', 'r', encoding='UTF-8') as f:
         contentStr = f.read()
@@ -323,31 +324,22 @@ if __name__ == "__main__":
             SemRDD = sRDD.reduceByKey(lambda x,y:(x+y))
             SemList = SemRDD.collect()
             correctCnt = 0
+            neCnt = 0
             for sem in SemList:
                 outputDicts['semantic_types'].append({
                     'semantic_type': labelList[i],
                     'label': sem[0],
-                    'count': sem[1]
+                    'count': int(sem[1])
                 })
+                neCnt += int(sem[1])
                 if sem[0] in labelList[i]:
-                    correctCnt += sem[0]
+                    correctCnt += sem[1]
             with open(outDir+"/"+fileName+"_semantic.json", 'w', encoding='UTF-8') as fw:
                 json.dump(outputDicts,fw)
             print('Finished output file: {}, the index is: {}'.format(fileName, i))
-            
-            NEmptyRDD = disRDD.map(lambda x: checkEmpty(x)).reduceByKey(lambda x,y:(x+y))
-            NEList = NEmptyRDD.collect()
-            neCnt = 0
-            neDct = {}
-            for ne in NEList:
-                neDct[ne[0]] = int(ne[1])
-            if 'number_non_empty_cells' not in neDct:
-                perList.append('all cells empty')
-            else:
-                neCnt = int(neDct['number_non_empty_cells'])
-                per = float(correctCnt)/neCnt
-                perList.append((i, per))
-                outPerList(i, per)
+            per = float(correctCnt)/neCnt
+            perList.append((i, per))
+            outPerList(i, per)
         except Exception as e:
             exceptList.append(i)
             outErrorList(i)
