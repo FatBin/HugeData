@@ -214,11 +214,14 @@ if __name__ == "__main__":
                 print('#4 finished')    
                 #add to out dicts
                 outputDicts["columns"].append(pdict)
+
+                #uncache
                 disRDD.unpersist()
                 columnOfInteger.unpersist()
                 columnOfReal.unpersist()
                 columnOfDate.unpersist()
                 columnOfText.unpersist()
+
             with open(outDir+"/"+name+"_generic.json", 'w') as fw:
                 json.dump(outputDicts,fw)
             print('Finished output file: {}, the index is: {}'.format(name, i))
