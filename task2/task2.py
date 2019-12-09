@@ -336,7 +336,7 @@ if __name__ == "__main__":
             fileInfo = fileLst[i]
             fStr = fileInfo.split(".")
             fileName = fStr[0]
-            colName = fStr[1]    
+            colName = fStr[1] 
             print('*'*50)
             print('Processing file: {} with column: {}, current step: {}/{}'.format( \
                 fileName, colName, i+1, fNum))
@@ -344,7 +344,8 @@ if __name__ == "__main__":
                 exceptList.append(i)
                 outErrorList(i)
                 continue
-            outputDicts = {}      
+            outputDicts = {} 
+            outputDicts['column_name'] = colName        
             outputDicts['semantic_types'] = []
             filePath = directory + "/" + fileName +".tsv.gz"
             fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t', encoding = 'UTF-8', multiLine = True).load(filePath)
@@ -368,7 +369,6 @@ if __name__ == "__main__":
                             colName = c
                             print('Renamed selected column name')
                             break
-            outputDicts['column_name'] = colName
             fileRDD = fileDF.select(colName).rdd.filter( \
                 lambda x: (x[colName] is not None and str(x[colName]).lower() not in emptyWordList)).cache()
             print('Finished selecting column from dataframe: {}'.format(fileName))
@@ -380,24 +380,29 @@ if __name__ == "__main__":
             SemList = SemRDD.collect()
             correctCnt = 0
             neCnt = 0
+            SemList.sort(key=lambda x:x[1], reverse=True)
+            semCnt = 0
             for sem in SemList:
+                semCnt += 1
                 outputDicts['semantic_types'].append({
                     'semantic_type': sem[0],
                     'label': labelList[i],
                     'count': int(sem[1])
                 })
                 neCnt += int(sem[1])
-                if sem[0] not in predictLabel:
-                    predictLabel[sem[0]] = 1
-                else:
-                    predictLabel[sem[0]] += 1
                 if sem[0] in labelList[i]:
-                    correctCnt += sem[1]
-                    if sem[0] not in correctPred:
-                        correctPred[sem[0]] = 1
+                        correctCnt += sem[1]
+                if semCnt <= len(labelList[i]):              
+                    if sem[0] not in predictLabel:
+                        predictLabel[sem[0]] = 1
                     else:
-                        correctPred[sem[0]] += 1               
-            with open(outDir+"/"+fileName+"_"+colName+".json", 'w', encoding='UTF-8') as fw:
+                        predictLabel[sem[0]] += 1
+                    if sem[0] in labelList[i]:
+                        if sem[0] not in correctPred:
+                            correctPred[sem[0]] = 1
+                        else:
+                            correctPred[sem[0]] += 1               
+            with open(outDir+"/"+fileName+"_"+fStr[1]+".json", 'w', encoding='UTF-8') as fw:
                 json.dump(outputDicts,fw)
             print('Finished output file: {}, the index is: {}'.format(fileName, i))
             per = float(correctCnt)/neCnt

@@ -90,7 +90,7 @@ if __name__ == "__main__":
     .getOrCreate()
     
     fNum = len(fileNames)
-    for i in range(1074, fNum):
+    for i in range(0, fNum):
         try:
             name = fileNames[i]
             outputDicts = {}
@@ -117,8 +117,7 @@ if __name__ == "__main__":
                 rddCol = disRDD.map(lambda x: (x[c], 1))
                 disRDD = rddCol.reduceByKey(lambda x,y:(x+y))
                 disRDD.cache()
-                disCol = disRDD.collect()
-                disCell = len(disCol)
+                disCell = disRDD.count()
                 pdict["number_distinct_values"] = int(disCell)
                 print('#1 finished')
                 #2
