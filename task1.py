@@ -21,9 +21,6 @@ import math
 import sys
 sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf8', buffering=1)
 
-
-emptyWordList = ["", "no data", "n/a", "null"]
-
 def str_type3(string, count):
     if string is None:
         return ('None', (None, count))
@@ -46,14 +43,6 @@ def str_type3(string, count):
     except:
         string
     return ('TEXT',(str(string), count))
-
-@udf("int")
-def count_text_length(data):
-    try:
-        result = long(len(data))
-        return result
-    except:
-        return None
 
 emptyWordList = ["", "-", "no data", "n/a", "null", "na", "unspecified"]
 
@@ -100,7 +89,7 @@ if __name__ == "__main__":
     .getOrCreate()
     
     fNum = len(fileNames)
-    for i in range(0, len(fileNames)):
+    for i in range(1074, fNum):
         try:
             name = fileNames[i]
             outputDicts = {}
