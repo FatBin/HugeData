@@ -22,7 +22,7 @@ import sys
 sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf8', buffering=1)
 
 
-emptyWordList = ["", "no data", "n/a", "null"
+emptyWordList = ["", "no data", "n/a", "null"]
 
 def str_type3(string, count):
     if string is None:
