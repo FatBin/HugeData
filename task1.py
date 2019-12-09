@@ -12,6 +12,7 @@ from pyspark.sql.functions import isnan, when, count, col
 import pyspark.sql.functions as F
 import numpy as np
 from numpy import long
+from numpy import double
 from pyspark.sql.functions import udf
 import datetime
 from dateutil.parser import parse
@@ -33,7 +34,7 @@ def str_type3(string, count):
     except:
         string
     try:
-        return ('REAL', (float(string), count))
+        return ('REAL', (double(string), count))
     except:
         string
     try:
