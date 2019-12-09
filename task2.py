@@ -9,7 +9,6 @@ from pyspark import SparkContext
 from pyspark.sql import SparkSession
 from pyspark.sql import SQLContext
 
-import sys
 sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf8', buffering=1)
 
 rowsNum = 0
@@ -351,10 +350,10 @@ if __name__ == "__main__":
                             colName = c
                             print('Renamed selected column name')
                             break
-            disRDD = fileDF.select(colName).rdd.filter( \
+            fileRDD = fileDF.select(colName).rdd.filter( \
                 lambda x: (x[colName] is not None and str(x[colName]).lower() not in emptyWordList)).cache()
             print('Finished selecting column from dataframe: {}'.format(fileName))
-            rddCol = disRDD.map(lambda x: (x[colName], 1))
+            rddCol = fileRDD.map(lambda x: (x[colName], 1))
             disRDD = rddCol.reduceByKey(lambda x,y:(x+y))
             rowsNum = len(disRDD.collect())
             sRDD = disRDD.map(lambda x: semanticMap(x))
@@ -364,8 +363,8 @@ if __name__ == "__main__":
             neCnt = 0
             for sem in SemList:
                 outputDicts['semantic_types'].append({
-                    'semantic_type': labelList[i],
-                    'label': sem[0],
+                    'semantic_type': sem[0],
+                    'label': labelList[i],
                     'count': int(sem[1])
                 })
                 neCnt += int(sem[1])
