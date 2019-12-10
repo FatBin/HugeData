@@ -2,7 +2,7 @@
 182 street_name
 183 other Vendor_DBA any
 184 street_name
-185 neighborhood,park
+185 neighborhood,park_playground
 186 color
 187 street_name
 188 address
@@ -70,7 +70,7 @@
 250 business_name
 251 address
 252 person_name
-253 neighborhood,park
+253 neighborhood,park_playground
 254 park_playground,other
 255 neighborhood
 256 borough

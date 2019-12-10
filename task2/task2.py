@@ -112,6 +112,10 @@ cityDict = {}
 agencyDict = {}
 #neighborhood List
 neighborhoodDict = {}
+#last name list
+lastNameDict = {}
+#first name list
+firstNameDict = {}
 
 def semanticMap(x):
     mat = str(x[0])
@@ -127,8 +131,8 @@ def semanticMap(x):
         if lowerMat.find(c) >= 0:
             return ('college_name', x[1])
     #type of location
-    if lowerMat in typeLocationList:
-        return ('location_type', x[1])
+    # if lowerMat in typeLocationList:
+    #     return ('location_type', x[1])
     #vehicle type
     if lowerMat in vehicleTypeList:
         return ('vehicle_type', x[1])
@@ -201,7 +205,8 @@ def semanticMap(x):
     for nei in neighborhoodDict.keys():
         if (cosSim(lowerMat, nei)) >= 0.8:
             return ('neighborhood', x[1])
-    if re.match(personNamePat, mat):
+    #person name
+    if lowerMat in lastNameDict or lowerMat in firstNameDict:
         return ('person_name', x[1])
     return ('other', x[1])
 
@@ -267,7 +272,7 @@ if __name__ == "__main__":
     fileLst = []
     perList = []
     ### label list
-    with open('./labellist.txt', 'r', encoding='UTF-8') as f:
+    with open('./labellist.txt', 'r') as f:
         labels = f.readlines()
         for label in labels:
             label = label.replace("\n","")
@@ -280,18 +285,18 @@ if __name__ == "__main__":
                     acturalLabel[l] += 1
         outDict("./actural_label.json", acturalLabel)
     ### cluster
-    with open('./cluster1.txt', 'r', encoding='UTF-8') as f:
+    with open('./cluster1.txt', 'r') as f:
         contentStr = f.read()
         fileLst = contentStr.replace('[',"").replace(']',"").replace("'","").replace("\n","").split(', ')
     ### city names list
-    with open('./citylist.txt', 'r', encoding='UTF-8') as f:
+    with open('./citylist.txt', 'r') as f:
         cityNames = f.readlines()
         for cityName in cityNames:
             cityDict[cityName.replace("\n","").strip()] = 1
     print("Loaded {} city names".format(len(cityDict.keys())))
     ### city agencies list
     cityAgencyDir = "./cityagencylist.txt"
-    with open(cityAgencyDir, 'r', encoding='UTF-8') as f:
+    with open(cityAgencyDir, 'r') as f:
         agencys = f.readlines()
         for agency in agencys:
             if agency.find("(") >= 0:
@@ -300,11 +305,25 @@ if __name__ == "__main__":
                     agencyDict[a.strip().replace(")","").lower()] = 1
     print("Loaded {} city agency names(Abbreviations and full names)".format(len(agencyDict.keys())))
     ### neighborhood list
-    with open('./neighborhood.txt', 'r', encoding='UTF-8') as f:
+    with open('./neighborhood.txt', 'r') as f:
         neighborhoodList = f.readlines()
         for neighborhood in neighborhoodList:
             neighborhoodDict[neighborhood.replace("\n","").strip()] = 1
     print("Loaded {} neighborhood names".format(len(neighborhoodDict.keys())))
+    ### last name list
+    with open('./commonlastname.txt', 'r') as f:
+        lastNameList = f.readlines()
+        for lastName in lastNameList:
+            lastName = lastName.split("\t")[0].lower()
+            lastNameDict[lastName] = 1
+    print("Loaded {} common last names".format(len(lastNameDict.keys())))
+    ### first name list
+    with open('./commonfirstname.txt', 'r') as f:
+        firstNameList = f.readlines()
+        for firstName in firstNameList:
+            firstName = firstName.split("\t")[0].lower()
+            firstNameDict[firstName] = 1
+    print("Loaded {} common first names".format(len(firstNameDict.keys())))
     spark = SparkSession \
     .builder \
     .appName("Python Spark SQL Project") \
@@ -317,7 +336,7 @@ if __name__ == "__main__":
             fileInfo = fileLst[i]
             fStr = fileInfo.split(".")
             fileName = fStr[0]
-            colName = fStr[1]    
+            colName = fStr[1] 
             print('*'*50)
             print('Processing file: {} with column: {}, current step: {}/{}'.format( \
                 fileName, colName, i+1, fNum))
@@ -325,8 +344,8 @@ if __name__ == "__main__":
                 exceptList.append(i)
                 outErrorList(i)
                 continue
-            outputDicts = {}
-            outputDicts['column_name'] = colName
+            outputDicts = {} 
+            outputDicts['column_name'] = colName        
             outputDicts['semantic_types'] = []
             filePath = directory + "/" + fileName +".tsv.gz"
             fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t', encoding = 'UTF-8', multiLine = True).load(filePath)
@@ -361,7 +380,10 @@ if __name__ == "__main__":
             SemList = SemRDD.collect()
             correctCnt = 0
             neCnt = 0
+            SemList.sort(key=lambda x:x[1], reverse=True)
+            semCnt = 0
             for sem in SemList:
+                semCnt += 1
                 outputDicts['semantic_types'].append({
                     'semantic_type': sem[0],
                     'label': labelList[i],
@@ -369,16 +391,18 @@ if __name__ == "__main__":
                 })
                 neCnt += int(sem[1])
                 if sem[0] in labelList[i]:
-                    correctCnt += sem[1]
-                    if sem[0] not in correctPred:
-                        correctPred[sem[0]] = 1
-                    else:
-                        correctPred[sem[0]] += 1
+                        correctCnt += sem[1]
+                if semCnt <= len(labelList[i]):              
                     if sem[0] not in predictLabel:
                         predictLabel[sem[0]] = 1
                     else:
                         predictLabel[sem[0]] += 1
-            with open(outDir+"/"+fileName+"_semantic.json", 'w', encoding='UTF-8') as fw:
+                    if sem[0] in labelList[i]:
+                        if sem[0] not in correctPred:
+                            correctPred[sem[0]] = 1
+                        else:
+                            correctPred[sem[0]] += 1               
+            with open(outDir+"/"+fileName+"_"+fStr[1]+".json", 'w', encoding='UTF-8') as fw:
                 json.dump(outputDicts,fw)
             print('Finished output file: {}, the index is: {}'.format(fileName, i))
             per = float(correctCnt)/neCnt

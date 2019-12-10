@@ -39,7 +39,7 @@
 38 school_name
 39 school_name
 40 address
-41 adress
+41 address
 42 other Vehicle_Body_Type
 43 city
 44 car_make
@@ -66,7 +66,7 @@
 65 school_level
 66 other DBA
 67 lat_lon_cord
-68 adress
+68 address
 69 other "should be building class, but so many empty cells"
 70 school_level
 71 website
@@ -183,7 +183,7 @@
 182 street_name
 183 other Vendor_DBA any
 184 street_name
-185 neighborhood,park
+185 neighborhood,park_playground
 186 color
 187 street_name
 188 address
@@ -251,7 +251,7 @@
 250 business_name
 251 address
 252 person_name
-253 neighborhood,park
+253 neighborhood,park_playground
 254 park_playground,other
 255 neighborhood
 256 borough

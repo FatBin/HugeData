@@ -39,7 +39,7 @@
 38 school_name
 39 school_name
 40 address
-41 adress
+41 address
 42 other Vehicle_Body_Type
 43 city
 44 car_make
@@ -66,7 +66,7 @@
 65 school_level
 66 other DBA
 67 lat_lon_cord
-68 adress
+68 address
 69 other "should be building class, but so many empty cells"
 70 school_level
 71 website
