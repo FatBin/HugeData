@@ -217,6 +217,7 @@ if __name__ == "__main__":
 
                 #uncache
                 disRDD.unpersist()
+                new_disRDD.unpersist()
                 columnOfInteger.unpersist()
                 columnOfReal.unpersist()
                 columnOfDate.unpersist()
