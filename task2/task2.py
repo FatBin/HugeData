@@ -289,14 +289,14 @@ if __name__ == "__main__":
         contentStr = f.read()
         fileLst = contentStr.replace('[',"").replace(']',"").replace("'","").replace("\n","").split(', ')
     ### city names list
-    with open('./citylist.txt', 'r') as f:
+    with open('./citylist.txt', 'r', encoding='utf-8') as f:
         cityNames = f.readlines()
         for cityName in cityNames:
             cityDict[cityName.replace("\n","").strip()] = 1
     print("Loaded {} city names".format(len(cityDict.keys())))
     ### city agencies list
     cityAgencyDir = "./cityagencylist.txt"
-    with open(cityAgencyDir, 'r') as f:
+    with open(cityAgencyDir, 'r', encoding='utf-8') as f:
         agencys = f.readlines()
         for agency in agencys:
             if agency.find("(") >= 0:
@@ -305,7 +305,7 @@ if __name__ == "__main__":
                     agencyDict[a.strip().replace(")","").lower()] = 1
     print("Loaded {} city agency names(Abbreviations and full names)".format(len(agencyDict.keys())))
     ### neighborhood list
-    with open('./neighborhood.txt', 'r') as f:
+    with open('./neighborhood.txt', 'r', encoding='utf-8') as f:
         neighborhoodList = f.readlines()
         for neighborhood in neighborhoodList:
             neighborhoodDict[neighborhood.replace("\n","").strip()] = 1
