@@ -260,6 +260,7 @@ def outPerList(i, p):
                 line = str(perList[j][0]) + " " + str(perList[j][1])+"\n"
                 f.write(line)
     print('finised output percision for one column')
+
 # output predict info
 def outDict(fp, dct):
     with open(fp, 'w') as f:
@@ -340,10 +341,6 @@ if __name__ == "__main__":
             print('*'*50)
             print('Processing file: {} with column: {}, current step: {}/{}'.format( \
                 fileName, colName, i+1, fNum))
-            if fileName == 'jz4z-kudi':
-                exceptList.append(i)
-                outErrorList(i)
-                continue
             outputDicts = {} 
             outputDicts['column_name'] = colName        
             outputDicts['semantic_types'] = []
@@ -385,8 +382,8 @@ if __name__ == "__main__":
             for sem in SemList:
                 semCnt += 1
                 outputDicts['semantic_types'].append({
-                    'semantic_type': sem[0],
-                    'label': labelList[i],
+                    'semantic_type': labelList[i],
+                    'label': sem[0],
                     'count': int(sem[1])
                 })
                 neCnt += int(sem[1])
