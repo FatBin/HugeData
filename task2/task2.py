@@ -80,7 +80,7 @@ vehicleTypeList = ['station wagon/sport utility vehicle', 'ambulance', 'boat', '
 #parks/playgrounds
 ppPat = r"([a-zA-Z0-9]{1,10} ){1,5}(park|playground)$"
 #street name
-streetPat = r"([a-zA-Z0-9]{1,10} ){1,5}(place|avenue|ave|ave\.|court|ct|street|st|drive|dr|lane|ln|road|rd|blvd|plaza|parkway|pkwy)$"
+streetPat = r"([a-zA-Z0-9]{1,10} ){1,2}(place|avenue|ave|ave\.|court|ct|street|st|drive|dr|lane|ln|road|rd|blvd|plaza|parkway|pkwy)$"
 #type of location
 typeLocationList = ['abandoned building', 'airport terminal', 'airport', 'bank', 'church', 'clothing', 'boutique']
 #lat/lon coordinates
@@ -153,7 +153,7 @@ def semanticMap(x):
     #     if cosSim(color, lowerMat ) >= 0.8:
     #         return ('color', x[1])
     #zip code
-    if re.match(zipPat, mat):
+    if re.match(zipPat, lowerMat):
         return ('zip_code', x[1])
     #buildingClassification
     if re.match(buildingClassificationPat, lowerMat):
@@ -170,13 +170,13 @@ def semanticMap(x):
         return ('lat_lon_cord', x[1])
     #phone number 
     for pat in phonePatList:
-        if re.match(pat, mat):
+        if re.match(pat, lowerMat):
             return ('phone_number', x[1])  
     #school name
     if re.match(school_pat, lowerMat):
         return ('school_name', x[1])     
     #parks/playgrounds
-    if re.match(ppPat, mat):
+    if re.match(ppPat, lowerMat):
         return ('park_playground', x[1]) 
     #street name
     if re.match(streetPat, lowerMat):
@@ -293,7 +293,7 @@ if __name__ == "__main__":
     with open('./citylist.txt', 'r', encoding='utf-8') as f:
         cityNames = f.readlines()
         for cityName in cityNames:
-            cityDict[cityName.replace("\n","").strip()] = 1
+            cityDict[cityName.replace("\n","").strip().lower()] = 1
     print("Loaded {} city names".format(len(cityDict.keys())))
     ### city agencies list
     cityAgencyDir = "./cityagencylist.txt"
@@ -309,7 +309,7 @@ if __name__ == "__main__":
     with open('./neighborhood.txt', 'r', encoding='utf-8') as f:
         neighborhoodList = f.readlines()
         for neighborhood in neighborhoodList:
-            neighborhoodDict[neighborhood.replace("\n","").strip()] = 1
+            neighborhoodDict[neighborhood.replace("\n","").strip().lower()] = 1
     print("Loaded {} neighborhood names".format(len(neighborhoodDict.keys())))
     ### last name list
     with open('./commonlastname.txt', 'r') as f:
