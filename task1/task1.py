@@ -177,6 +177,7 @@ if __name__ == "__main__":
                     data_types.append(integerType)
                 if numOfReal > 0:
                     realType = {}
+                    realType['type'] = 'REAL'
                     realType['count'] = columnOfReal.map(lambda x: x[1][1]).sum()
                     columnOfRealValue = columnOfReal.map(lambda x: x[1][0])
                     realType['max_value'] = columnOfRealValue.max()
