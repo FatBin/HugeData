@@ -241,25 +241,25 @@ def outErrorList(i):
                 line = str(i)+"\n"
                 f.write(line)
 
-# this is the percision of each column
+# this is the precision of each column
 def outPerList(i, p):
     plst = []
-    if os.path.isfile("./col_percision.txt"):
-        with open("./col_percision.txt", 'r', encoding='UTF-8') as f:
+    if os.path.isfile("./col_precision.txt"):
+        with open("./col_precision.txt", 'r', encoding='UTF-8') as f:
             pStr = f.readlines()
             for line in pStr:
                 line = line = line.split(" ")[0]
                 plst.append(line)
-        with open("./col_percision.txt", 'a', encoding='UTF-8') as f:
+        with open("./col_precision.txt", 'a', encoding='UTF-8') as f:
             if str(i) not in plst:
                 line = str(i) + " " + str(p)+"\n"
                 f.write(line)
     else:
-        with open("./col_percision.txt", 'w', encoding='UTF-8') as f:
+        with open("./col_precision.txt", 'w', encoding='UTF-8') as f:
             for j in range(len(perList)):
                 line = str(perList[j][0]) + " " + str(perList[j][1])+"\n"
                 f.write(line)
-    print('finised output percision for one column')
+    print('finised output precision for one column')
 
 # output predict info
 def outDict(fp, dct):
@@ -342,7 +342,9 @@ if __name__ == "__main__":
             print('Processing file: {} with column: {}, current step: {}/{}'.format( \
                 fileName, colName, i+1, fNum))
             outputDicts = {} 
-            outputDicts['column_name'] = colName        
+            outputDicts['dataset_name'] = fileName 
+            outputDicts['column_name'] = colName  
+            outputDicts['actual_types'] = labelList[i]            
             outputDicts['semantic_types'] = []
             filePath = directory + "/" + fileName +".tsv.gz"
             fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t', encoding = 'UTF-8', multiLine = True).load(filePath)
@@ -381,11 +383,17 @@ if __name__ == "__main__":
             semCnt = 0
             for sem in SemList:
                 semCnt += 1
-                outputDicts['semantic_types'].append({
-                    'semantic_type': labelList[i],
-                    'label': sem[0],
+                if sem[0] == 'other':
+                    outputDicts['semantic_types'].append({
+                    'semantic_type': sem[0],
+                    'label': labelList[i],
                     'count': int(sem[1])
-                })
+                    })
+                else:
+                    outputDicts['semantic_types'].append({
+                        'semantic_type': sem[0],
+                        'count': int(sem[1])
+                    })
                 neCnt += int(sem[1])
                 if sem[0] in labelList[i]:
                         correctCnt += sem[1]
@@ -398,9 +406,9 @@ if __name__ == "__main__":
                         if sem[0] not in correctPred:
                             correctPred[sem[0]] = 1
                         else:
-                            correctPred[sem[0]] += 1               
+                            correctPred[sem[0]] += 1    
             with open(outDir+"/"+fileName+"_"+fStr[1]+".json", 'w', encoding='UTF-8') as fw:
-                json.dump(outputDicts,fw)
+                json.dump(outputDicts,fw,indent=1)
             print('Finished output file: {}, the index is: {}'.format(fileName, i))
             per = float(correctCnt)/neCnt
             perList.append((i, per))
@@ -410,7 +418,7 @@ if __name__ == "__main__":
             outErrorList(i)
     outDict("./correct_predict.json", correctPred)
     outDict("./predict_label.json", predictLabel)
-    #### output percision and recall
+    #### output precision and recall
     allTypes = 0
     for label in acturalLabel.keys():
         allTypes += acturalLabel[label]
@@ -418,12 +426,12 @@ if __name__ == "__main__":
     for label in acturalLabel.keys():
         if label in correctPred:
             finalPerRecall[label] = {
-                'percision': float(correctPred[label])/predictLabel[label],
+                'precision': float(correctPred[label])/predictLabel[label],
                 'recall': float(correctPred[label])/acturalLabel[label]
             }
         else:
             finalPerRecall[label] = {
-                'percsion': 0.0,
+                'precision': 0.0,
                 'recall': 0.0
             }
-    outDict('final_percision_recall.json', finalPerRecall)
+    outDict('final_precision_recall.json', finalPerRecall)
