@@ -1,9 +1,8 @@
-#import pandas
+import pandas
 import pyspark
 from pyspark import SparkContext
 from pyspark.sql import SparkSession
 from itertools import chain, combinations
-#import pyspark.sql.functions as F
 
 def key_options(items):
     return chain.from_iterable(combinations(items, r) for r in range(1, len(items)+1) )
@@ -17,15 +16,14 @@ spark = SparkSession \
 .config("spark.some.config.option", "some-value") \
 .getOrCreate()
 
-# test_code for one file
-name = fileNames[0]
-filePath = directory + "/" + name +".tsv.gz"
-fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t').load(filePath)
-# fileDF = pandas.read_csv(filePath, compression='gzip')
-
-#key_options = key_options(list(fileDF))
-#for candidate in key_options:
-for candidate in key_options(list(fileDF)):
-    deduped = fileDF.drop_duplicates(candidate)
-    if len(deduped.index) == len(fileDF.index):
-        print(','.join(candidate))
+with open("task1extracredit.txt", "w") as text_file:
+    for name in fileNames:
+        filePath = directory + "/" + fileNames[0] +".tsv.gz"
+        fileDF = spark.read.format('csv').options(header='true', inferschema='true', delimiter='\t').load(filePath)
+        fileDF = fileDF.toPandas()
+        text_file.write('File Name: '+ name )
+        for candidate in key_options(list(fileDF)):
+            deduped = fileDF.drop_duplicates(candidate)
+            if len(deduped.index) == len(fileDF.index):
+                print(','.join(candidate))
+                text_file.write(','.join(candidate))
